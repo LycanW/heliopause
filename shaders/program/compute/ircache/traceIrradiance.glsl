@@ -15,7 +15,9 @@
 
 layout (local_size_x = 64) in;
 
-#if IRCACHE_VOXEL_ARRAY_SIZE == 32768
+#if IRCACHE_VOXEL_ARRAY_SIZE == 16384
+    const ivec3 workGroups = ivec3(256, 1, 1);
+#elif IRCACHE_VOXEL_ARRAY_SIZE == 32768
     const ivec3 workGroups = ivec3(512, 1, 1);
 #elif IRCACHE_VOXEL_ARRAY_SIZE == 49152
     const ivec3 workGroups = ivec3(768, 1, 1);
