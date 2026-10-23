@@ -20,6 +20,8 @@ Local compatibility modifications, 2026-10-24:
   modes and cannot be assigned using boolean profile syntax.
 - Complete the advertised 16384-entry irradiance-cache setting: allocate 524288
   bytes and dispatch 256 groups of 64 invocations for initialization and updates.
+- Correct the DIFFUSE_SAMPLES macro in the two-sample blue-noise resource branch,
+  selecting HeitzData_2spp.bin when the diffuse sample count is 2.
 
 Original sample counts, distances and capacities are retained. Specular mapping
 now defaults to enabled; disabling it restores the integrated-material mode.
