@@ -58,7 +58,7 @@ void main ()
         gl_Position.xy = mix(-gl_Position.ww, gl_Position.xy, TAAU_RENDER_SCALE);
     #endif
 
-    vsout.texcoord = mat4x2(gl_TextureMatrix[0]) * gl_MultiTexCoord0;
+    vsout.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     vsout.vertexColor = gl_Color.rgb;
     vsout.packedNormal = packExp4x8(octEncode(alignNormal(transpose(mat3(gbufferModelView)) * gl_NormalMatrix * gl_Normal, 0.01)).xyxy);
 }

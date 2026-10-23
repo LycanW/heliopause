@@ -185,7 +185,7 @@
     {   
         vec3 playerPos = voxelOffset + mat3(shadowModelViewInverse) * mat4x3(gl_ModelViewMatrix) * gl_Vertex;
 
-        vsout.texcoord = mat4x2(gl_TextureMatrix[0]) * gl_MultiTexCoord0;
+        vsout.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
         vsout.vertexColor = gl_Color.rgb;
         vsout.vertexPosition = floor(playerPos + 0.5) + (playerPos - floor(playerPos + 0.5)) * step(vec3(0.001), abs(playerPos - floor(playerPos + 0.5)));
         

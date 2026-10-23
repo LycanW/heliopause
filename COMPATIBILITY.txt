@@ -1,0 +1,22 @@
+Zephyr Starlight v0.2.2a-hotfix1 - compatibility candidate a3
+Original author: Kirilpro6284
+Original project: https://github.com/Kirilpro6284/zephyr-starlight
+Original license: CC BY-NC-SA 4.0; see LICENSE.
+
+Local compatibility modifications, 2026-10-24:
+- Clear the voxel table with a two-dimensional compute dispatch, within the
+  OpenGL portable per-dimension group-count limits and matching VOXEL_ARRAY_SIZE.
+- Clear exactly the 1024 texture hash keys instead of writing 4096 array slots.
+- Apply the initialization fixes in the overworld, Nether and End.
+- Replace rectangular texture-matrix conversion with equivalent full mat4
+  multiplication followed by .xy, for visible geometry, POM bounds, sky geometry
+  and voxel capture. This addresses the previously observed zero-V UV issue.
+- Enable the existing specular-map option by default for the active LabPBR pack.
+  Preserve its material values in the main view and atlas-backed ray hits instead
+  of overwriting them with integrated materials. Non-atlas ray hits retain the
+  original integrated-material fallback because no specular sidecar is captured.
+
+Original sample counts, distances and capacities are retained. Specular mapping
+now defaults to enabled; disabling it restores the integrated-material mode.
+This candidate has only received static source, include, diff and
+archive-manifest inspection. It has not been compiled or run in Minecraft.

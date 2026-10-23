@@ -1,3 +1,11 @@
+> [!NOTE]
+> This fork contains compute-dispatch and UV-expression compatibility fixes, and
+> enables resource-pack specular mapping by default while preserving mapped
+> material values over integrated defaults. See [COMPATIBILITY.txt](COMPATIBILITY.txt)
+> for the changes and their scope. Source, includes and archive contents have been
+> statically reviewed; shader compilation and visual validation of the final
+> mirror-material changes are still pending.
+
 ![screenshot](assets/2026-01-01_01.25.04.png)
 <sub><sup>Resource pack used: AVPBR Retextured R5</sup></sub>
 

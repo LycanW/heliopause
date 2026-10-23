@@ -1,5 +1,9 @@
 RayHitInfo hitResult = miss(maxDist);
 
+#ifndef RT_SHADOW
+    bool hasMappedSpecular = false;
+#endif
+
 ray.origin += voxelOffset;
 ray.direction = vec3(ray.direction.x < 0.0 ? -1.0 : 1.0, ray.direction.y < 0.0 ? -1.0 : 1.0, ray.direction.z < 0.0 ? -1.0 : 1.0) * max(abs(ray.direction), vec3(0.0001));
 
@@ -94,7 +98,8 @@ for (uint i = 0u; i < 256u && all(greaterThan(voxel, ivec3(0))) && all(lessThan(
                             hitResult.albedo = tr.blockId == 10100 ? vec4(waterTransmittance(min(16.0, dist)), 1.0) : albedo;
                             hitResult.blockId = tr.blockId;
                             #ifdef SPECULAR_MAPPING
-                                hitResult.specular = tr.textureIndex == 4095u ? textureLod(shadowtex1, texcoord, 0.0) : vec4(0.0);
+                                hasMappedSpecular = tr.textureIndex == 4095u;
+                                hitResult.specular = hasMappedSpecular ? textureLod(shadowtex1, texcoord, 0.0) : vec4(0.0);
                             #endif
                             hitResult.normal = normal;
                             hitResult.translucent = tr.isTranslucent;
@@ -124,7 +129,9 @@ if (hitResult.hit) hitResult.dist += rayOffset;
     hitResult.normal = -sign(dot(ray.direction, hitResult.normal)) * normalize(hitResult.normal);
 
     #ifdef IPBR
-        applyIntegratedSpecular(hitResult.albedo.rgb, hitResult.specular, hitResult.blockId);
+        if (!hasMappedSpecular) {
+            applyIntegratedSpecular(hitResult.albedo.rgb, hitResult.specular, hitResult.blockId);
+        }
     #endif
 
     hitResult.albedo = vec4(pow(tint * hitResult.albedo.rgb, vec3(2.2)), hitResult.albedo.a);

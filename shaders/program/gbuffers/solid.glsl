@@ -107,7 +107,7 @@ void main ()
         vec3 textureNormal = geoNormal;
     #endif
 
-    #ifdef IPBR
+    #if defined IPBR && !defined SPECULAR_MAPPING
         applyIntegratedSpecular(albedo.rgb, specularData, vsout.blockId);
     #endif
 
@@ -164,7 +164,7 @@ void main ()
         gl_Position.xy = mix(-gl_Position.ww, gl_Position.xy, TAAU_RENDER_SCALE);
     #endif
 
-    vsout.texcoord = mat4x2(gl_TextureMatrix[0]) * gl_MultiTexCoord0;
+    vsout.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     vsout.vertexColor = gl_Color.rgb;
     vsout.vertexNormal = pack2x16(octEncode(alignNormal(transpose(mat3(gbufferModelView)) * gl_NormalMatrix * gl_Normal, 0.008)));
 
@@ -183,7 +183,7 @@ void main ()
     #endif
 
     #ifdef POM
-        vec2 midTexCoord = mat4x2(gl_TextureMatrix[0]) * mc_midTexCoord;
+        vec2 midTexCoord = (gl_TextureMatrix[0] * mc_midTexCoord).xy;
         vsout.texBounds = vec4(textureSize(gtexture, 0).xyxy) * vec4(midTexCoord - abs(midTexCoord - vsout.texcoord), midTexCoord + abs(midTexCoord - vsout.texcoord));
     #endif
 }

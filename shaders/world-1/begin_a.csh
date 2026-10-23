@@ -9,7 +9,8 @@
 
 layout (local_size_x = 64) in;
 
-const ivec3 workGroups = ivec3(64, 1, 1);
+// allTextures.keys contains 1024 entries: 16 groups * 64 invocations.
+const ivec3 workGroups = ivec3(16, 1, 1);
 
 void main ()
 {   

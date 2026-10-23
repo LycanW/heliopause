@@ -62,7 +62,7 @@ void main ()
         gl_Position.xy = mix(-gl_Position.ww, gl_Position.xy, TAAU_RENDER_SCALE);
     #endif
 
-    vsout.texcoord = mat4x2(gl_TextureMatrix[0]) * gl_MultiTexCoord0;
+    vsout.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     vsout.vertexColor = gl_Color.rgb * (renderStage == MC_RENDER_STAGE_SUN ? (smoothstep(-0.04, 0.01, sunDir.y) * 0.9 + 0.1) : 1.0);
 }
 
