@@ -1,5 +1,7 @@
-profile.FANCY = §9Fancy
-profile.FAST  = §cFast
+profile.FAST     = §aPerformance
+profile.BALANCED = §bBalanced (Default)
+profile.FANCY    = §9High
+profile.ULTRA    = §dUltra
 
 option.MAIN_TITLE = Zephyr Starlight by §9Kirilpro6284
 

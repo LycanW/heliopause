@@ -1,10 +1,35 @@
 > [!NOTE]
 > This fork contains compute-dispatch and UV-expression compatibility fixes, and
 > enables resource-pack specular mapping by default while preserving mapped
-> material values over integrated defaults. See [COMPATIBILITY.txt](COMPATIBILITY.txt)
-> for the changes and their scope. Source, includes and archive contents have been
-> statically reviewed; shader compilation and visual validation of the final
-> mirror-material changes are still pending.
+> material values over integrated defaults. It adds Simplified Chinese settings
+> and four quality profiles, with Balanced defaults enabling normal mapping and
+> POM. See [COMPATIBILITY.txt](COMPATIBILITY.txt) for the changes and their scope.
+> The latest preset changes have been statically reviewed; compilation, visual
+> quality and performance validation remain pending.
+
+## Fork quality profiles
+
+New installations and reset shader options use **Balanced**. Normal and specular
+mapping are enabled in every profile; POM is enabled from Balanced upward.
+
+| Profile | Internal render scale | Diffuse / reflection / shadow samples | Reflection trace | POM steps |
+|---|---:|---:|---|---:|
+| Performance | 75% | 1 / 1 / 1 | Half resolution, 1 bounce | Off |
+| Balanced (default) | 100% | 1 / 1 / 2 | Half resolution, 3 bounces | 32 |
+| High | 100% | 1 / 2 / 2 | Half resolution, 4 bounces | 64 |
+| Ultra | 100% | 2 / 4 / 4 | Full resolution, 6 bounces | 128 |
+
+The profiles also scale irradiance-cache samples, filtering, volumetric-light
+steps, subsurface-scattering steps and camera-effect samples. They set the same
+quality controls so switching back to a lower tier restores those settings.
+Material texture resolution, POM depth, scene-capture options and memory-pool
+capacities remain independently adjustable. Set **Terrain > Parallax Occlusion
+Mapping > Texture Resolution** to the resource pack's resolution; the default is
+16. POM requires height data in the normal texture's alpha channel.
+
+Existing saved shader options take precedence over defaults. Select a profile
+explicitly or reset shader options to use the new defaults. These tiers describe
+configured rendering work; no frame-rate target has been measured or guaranteed.
 
 ![screenshot](assets/2026-01-01_01.25.04.png)
 <sub><sup>Resource pack used: AVPBR Retextured R5</sup></sub>

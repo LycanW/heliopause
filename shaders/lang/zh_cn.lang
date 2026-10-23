@@ -1,5 +1,7 @@
-profile.FANCY = §9高画质
-profile.FAST  = §c高性能
+profile.FAST     = §a性能
+profile.BALANCED = §b均衡（默认）
+profile.FANCY    = §9高画质
+profile.ULTRA    = §d极高
 
 option.MAIN_TITLE = Zephyr Starlight，作者：§9Kirilpro6284
 
