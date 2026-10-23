@@ -1,0 +1,248 @@
+profile.FANCY = §9高画质
+profile.FAST  = §c高性能
+
+option.MAIN_TITLE = Zephyr Starlight，作者：§9Kirilpro6284
+
+value.MAIN_TITLE.0 = §dv0.2.2
+value.MAIN_TITLE.1 = §cv0.2.2
+value.MAIN_TITLE.2 = §6v0.2.2
+value.MAIN_TITLE.3 = §ev0.2.2
+value.MAIN_TITLE.4 = §av0.2.2
+value.MAIN_TITLE.5 = §bv0.2.2
+value.MAIN_TITLE.6 = §9v0.2.2
+value.MAIN_TITLE.7 = §5v0.2.2
+
+screen.PATH_TRACING    = 路径追踪
+screen.ATMOSPHERICS    = 大气与光照
+screen.TERRAIN         = 地形与材质
+screen.ANTIALIASING    = 抗锯齿
+screen.POST_PROCESSING = 后期处理
+screen.MISC            = 杂项与调试
+
+screen.PT_VOXELIZATION = 体素化
+screen.PT_IRCACHE      = 辐照度缓存
+
+screen.PT_DIFFUSE    = 漫反射光照
+screen.PT_REFLECTION = 反射
+screen.PT_SHADOW     = 阴影
+screen.PT_DENOISING  = 降噪
+
+screen.PT_SPATIAL_FILTER  = 空间滤波
+screen.PT_TEMPORAL_FILTER = 时间滤波
+
+option.SMOOTH_IRCACHE    = 辐照度缓存平滑
+option.NOISE_METHOD      = 噪声类型
+
+value.SMOOTH_IRCACHE.0 = 关闭
+value.SMOOTH_IRCACHE.1 = 快速
+value.SMOOTH_IRCACHE.2 = 高质量
+
+value.NOISE_METHOD.0 = 白噪声
+value.NOISE_METHOD.1 = 蓝噪声
+
+option.DIFFUSE_SAMPLES               = 漫反射采样数
+option.DIFFUSE_MAX_RT_DISTANCE       = 漫反射追踪距离
+option.PT_DIFFUSE_ACCUMULATION_LIMIT = 最大累积帧数
+option.DIFFUSE_DENOISE_PASSES        = 降噪轮数
+option.SAMPLING_METHOD               = 采样方式
+
+value.SAMPLING_METHOD.0              = 均匀采样
+value.SAMPLING_METHOD.1              = 余弦加权采样
+
+option.SECONDARY_GI_BRIGHTNESS       = 次级全局光照强度
+option.MINIMUM_LIGHT                 = 最低光照
+option.SUNLIGHT_GI_QUALITY           = 阳光全局光照质量
+
+value.SUNLIGHT_GI_QUALITY.0          = 低
+value.SUNLIGHT_GI_QUALITY.1          = 中
+value.SUNLIGHT_GI_QUALITY.2          = 高
+
+option.DIFFUSE_FILTER_QUALITY        = 降噪质量
+
+value.DIFFUSE_FILTER_QUALITY.0       = 低
+value.DIFFUSE_FILTER_QUALITY.1       = 高
+
+option.REFLECTION_SAMPLES               = 反射采样数
+option.REFLECTION_MAX_RT_DISTANCE       = 反射追踪距离
+option.PT_REFLECTION_ACCUMULATION_LIMIT = 最大累积帧数
+option.REFLECTION_ROUGHNESS_THRESHOLD   = 反射粗糙度阈值
+option.REFLECTION_BOUNCES               = 反射弹射次数
+option.REFLECTION_PER_PIXEL_SHADOWS     = 逐像素计算阴影
+option.REFLECTION_SS_REUSE              = 复用屏幕空间光照
+
+option.SHADOW_SAMPLES               = 阴影采样数
+option.SHADOW_MAX_RT_DISTANCE       = 阴影追踪距离
+option.PT_SHADOW_ACCUMULATION_LIMIT = 最大累积帧数
+option.SHADOW_SOFTNESS              = 阴影柔和度
+option.SHADOW_SKIP_CLIPPING         = 跳过历史值裁剪
+
+option.DIFFUSE_HALF_RES    = 半分辨率追踪
+option.REFLECTION_HALF_RES = 半分辨率追踪
+option.SHADOW_HALF_RES     = 半分辨率追踪
+
+option.DENOISER_DEPTH_WEIGHT     = 降噪深度权重
+option.DENOISER_NORMAL_WEIGHT    = 降噪法线权重
+option.DENOISER_INTENSITY_WEIGHT = 降噪亮度权重
+
+option.TEMPORAL_PREFILTERING      = 时间预滤波
+option.TEMPORAL_NORMAL_TOLERANCE  = 放宽历史法线匹配
+
+option.DENOISER_VARIANCE_GUIDE    = 方差引导
+
+option.IRCACHE_VOXEL_ARRAY_SIZE = 体素数组容量
+option.IRCACHE_PROBE_ATTEMPTS   = 哈希探测次数
+option.IRCACHE_CASCADE_RES      = 级联分辨率
+option.IRCACHE_MAX_RT_DISTANCE  = 追踪距离
+option.IRCACHE_SAMPLES          = 采样数
+option.IRCACHE_BLEND_WEIGHT     = 混合权重
+
+suffix.IRCACHE_CASCADE_RES      = ³
+
+option.VOXELIZATION_DISTANCE   = 体素化距离
+option.entityShadowDistanceMul = 实体体素化距离倍率
+
+suffix.entityShadowDistanceMul = x
+
+option.VOXELIZE_ENTITIES       = 体素化实体
+option.VOXELIZE_BLOCK_ENTITIES = 体素化方块实体
+option.VOXELIZE_PLAYER         = 体素化玩家
+option.VOXELIZE_ITEMS          = 体素化物品
+
+screen.VOXEL_ADVANCED = 高级设置
+
+option.VOXEL_ARRAY_SIZE     = 体素数组容量
+option.VOXEL_PROBE_ATTEMPTS = 体素哈希探测次数
+option.shadowMapResolution  = 实体纹理最大尺寸
+suffix.shadowMapResolution  = ²
+option.TEXTURE_HASH_ENTRIES = 纹理哈希条目数
+option.TRIANGLE_ARRAY_SIZE  = 三角形数组容量
+
+option.sunPathRotation      = 太阳轨迹旋转角度
+option.SUN_AZIMUTH_ROTATION = 太阳方位旋转角度
+option.SUN_SIZE             = 太阳大小
+
+option.SKY_MIE          = 米氏散射强度
+option.SKY_OZONE        = 臭氧含量
+option.SKY_RAYLEIGH_R   = 瑞利散射强度（红）
+option.SKY_RAYLEIGH_G   = 瑞利散射强度（绿）
+option.SKY_RAYLEIGH_B   = 瑞利散射强度（蓝）
+option.NIGHT_BRIGHTNESS = 夜间亮度
+option.SKY_MULTISCATTER = 多重散射
+
+screen.VOLUMETRIC_LIGHT = 体积光
+
+option.VL_ENABLED       = 启用
+option.VL_STEP_COUNT    = 步数
+option.VL_INTENSITY     = 强度
+option.VL_INTENSITY_DAY = 日间强度
+option.VL_DENSITY       = 雾密度
+option.VL_DISTANCE      = 最大距离
+
+screen.SUBSURFACE_SCATTERING = 次表面散射
+
+option.SSS_ENABLED       = 启用
+option.SSS_STEP_COUNT    = 步数
+option.SSS_INTENSITY     = 强度
+option.SSS_ABSORPTION    = 吸收强度
+option.SSS_RADIUS        = 采样核半径
+option.SSS_PHASE         = 相函数
+
+option.NORMAL_MAPPING         = 法线贴图
+option.SPECULAR_MAPPING       = 镜面反射贴图
+option.GLASS_REFRACTION       = 玻璃折射
+option.WATER_REFRACTION       = 水面折射
+option.REFRACTION_BOUNCES     = 折射次数
+option.GLASS_IOR              = 玻璃折射率
+option.GLASS_REFLECTANCE      = 玻璃反射率
+option.GLASS_OPACITY          = 玻璃不透明度
+option.WATER_ABSORPTION_R     = 水体吸收系数（红）
+option.WATER_ABSORPTION_G     = 水体吸收系数（绿）
+option.WATER_ABSORPTION_B     = 水体吸收系数（蓝）
+option.WATER_REFLECTANCE      = 水面反射率
+
+screen.TERRAIN_REFRACTION      = 折射
+
+screen.TERRAIN_POM             = 视差遮挡映射（POM）
+
+option.POM                     = 启用
+option.POM_DEPTH               = 视差深度
+option.POM_STEPS               = 视差追踪步数
+option.POM_TEXTURE_RES         = 纹理分辨率
+
+screen.TERRAIN_IPBR            = 内置物理材质（PBR）
+
+option.IPBR                    = 内置镜面反射材质
+option.EMISSION_BRIGHTNESS     = 自发光亮度
+option.GLOWING_ORES            = 矿石发光
+option.GLOWING_CONCRETE_POWDER = 混凝土粉末发光
+option.GLOWING_REDSTONE_BLOCK  = 红石块发光
+option.GLOWING_LAPIS_BLOCK     = 青金石块发光
+option.GLOWING_ARMOR_TRIMS     = 盔甲纹饰发光
+option.MIRROR_PACKED_ICE       = 浮冰镜面效果
+
+screen.TERRAIN_WATER           = 水体
+
+option.WATER_WAVE_HEIGHT       = 波浪高度
+option.WATER_WAVE_FREQUENCY    = 波浪频率
+option.WATER_WAVE_SPEED        = 波浪速度
+option.WATER_WAVE_TURBULENCE   = 波浪扰动强度
+
+option.WATER_REFRACTED_CAUSTICS = 折射焦散
+option.WATER_REFLECTED_CAUSTICS = 反射焦散
+option.WATER_CAUSTICS_STRENGTH  = 焦散强度
+
+option.TAA                     = 时间抗锯齿（TAA）
+option.TAA_UPSCALING_FACTOR    = 时间上采样
+
+value.TAA_UPSCALING_FACTOR.25  = 25%（不推荐）
+value.TAA_UPSCALING_FACTOR.33  = 33%（不推荐）
+value.TAA_UPSCALING_FACTOR.100 = 100%（关闭）
+
+suffix.TAA_UPSCALING_FACTOR    = %
+
+option.TAA_JITTER_SCALE       = 抖动幅度
+option.TAA_BLEND_WEIGHT       = 混合权重
+option.TAA_OFFCENTER_WEIGHT   = 像素偏心排斥权重
+option.TAA_VARIANCE_WEIGHT    = 方差排斥权重
+option.TAA_MIP_SCALE          = 多级纹理缩放系数
+option.SHARPENING             = 锐化强度
+
+option.TAA_REFLECTION_DEPTH   = 反射重投影
+option.TAA_HISTORY_SAMPLING   = 历史帧采样方式
+
+value.TAA_HISTORY_SAMPLING.0  = Catmull-Rom 插值
+value.TAA_HISTORY_SAMPLING.1  = 双线性插值
+
+option.DYNAMIC_EXPOSURE             = 自动曝光
+option.ADAPTATION_SPEED             = 曝光适应速度
+option.MANUAL_EXPOSURE              = 手动曝光
+option.BRIGHTNESS                   = 亮度
+option.CHROMATIC_ABERRATION         = 色差强度
+option.CHROMATIC_ABERRATION_SAMPLES = 色差采样数
+
+option.MOTION_BLUR                  = 运动模糊
+option.MOTION_BLUR_STRENGTH         = 运动模糊强度
+option.MOTION_BLUR_SAMPLES          = 运动模糊采样数
+
+option.DEPTH_OF_FIELD               = 景深
+option.APERTURE_SIZE                = 景深光圈大小
+option.DOF_SAMPLES                  = 景深采样数
+option.DOF_FOCUS_MODE               = 景深对焦模式
+option.DOF_FOCUS_DISTANCE           = 对焦距离
+
+option.BLOOM                        = 泛光
+option.BLOOM_STRENGTH               = 泛光强度
+
+value.DOF_FOCUS_MODE.0              = 自动
+value.DOF_FOCUS_MODE.1              = 手动
+
+option.HAND_FOV               = 手持物品视野
+option.DISABLE_DENOISING      = 禁用降噪
+option.FORCE_TRIANGLE_TRACING = 强制三角形追踪
+option.ENABLE_TEXT_RENDERING  = 显示调试文字
+
+value.HAND_FOV.0              = 默认
+suffix.HAND_FOV               = °
+
+option.DEBUG_IRCACHE = 显示辐照度缓存
+option.DEBUG_VOXELIZATION = 显示体素化结果
