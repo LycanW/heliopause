@@ -1,4 +1,4 @@
-Zephyr Starlight v0.2.2a-hotfix1 - compatibility candidate a3
+Zephyr Starlight v0.2.2a-hotfix1 - compatibility fork
 Original author: Kirilpro6284
 Original project: https://github.com/Kirilpro6284/zephyr-starlight
 Original license: CC BY-NC-SA 4.0; see LICENSE.
@@ -15,6 +15,9 @@ Local compatibility modifications, 2026-10-24:
   Preserve its material values in the main view and atlas-backed ray hits instead
   of overwriting them with integrated materials. Non-atlas ray hits retain the
   original integrated-material fallback because no specular sidecar is captured.
+- Set irradiance-cache smoothing numerically in profiles: FANCY uses 1 (Fast),
+  preserving the default mode; FAST uses 0 (Off). The option has three numeric
+  modes and cannot be assigned using boolean profile syntax.
 
 Original sample counts, distances and capacities are retained. Specular mapping
 now defaults to enabled; disabling it restores the integrated-material mode.
