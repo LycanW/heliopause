@@ -1,5 +1,5 @@
-#ifndef ZEPHYR_RELAX_CONSTANTS
-#define ZEPHYR_RELAX_CONSTANTS
+#ifndef HELIOPAUSE_RELAX_CONSTANTS
+#define HELIOPAUSE_RELAX_CONSTANTS
 
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;

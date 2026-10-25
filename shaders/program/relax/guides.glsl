@@ -1,5 +1,5 @@
-#ifndef ZEPHYR_RELAX_GUIDES
-#define ZEPHYR_RELAX_GUIDES
+#ifndef HELIOPAUSE_RELAX_GUIDES
+#define HELIOPAUSE_RELAX_GUIDES
 // Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
 // NRD.hlsli: _NRD_EncodeNormalRoughness101010, encoded into FP16 atlas storage.
 // This software contains source code provided by NVIDIA Corporation.

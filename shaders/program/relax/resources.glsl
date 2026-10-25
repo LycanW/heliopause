@@ -1,5 +1,5 @@
-#ifndef ZEPHYR_RELAX_RESOURCES
-#define ZEPHYR_RELAX_RESOURCES
+#ifndef HELIOPAUSE_RELAX_RESOURCES
+#define HELIOPAUSE_RELAX_RESOURCES
 
 // Logical NRD textures share atlas storage; each pass reads and writes distinct
 // logical regions. Iris issues the image/texture barriers between dispatches.

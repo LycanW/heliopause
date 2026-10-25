@@ -1,104 +1,112 @@
-> [!NOTE]
-> This fork contains compute-dispatch and UV-expression compatibility fixes, and
-> enables resource-pack specular mapping by default while preserving mapped
-> material values over integrated defaults. It adds Simplified Chinese settings
-> and four quality profiles, with Balanced defaults enabling normal mapping and
-> POM. See [COMPATIBILITY.txt](COMPATIBILITY.txt) for the changes and their scope.
-> The latest preset changes have been statically reviewed; compilation, visual
-> quality and performance validation remain pending.
+# Heliopause
 
-## Fork quality profiles
+**Real-time path-traced lighting for Minecraft · Maintained by [LycanW](https://github.com/LycanW)**
 
-New installations and reset shader options use **Balanced**. Normal and specular
-mapping are enabled in every profile; POM is enabled from Balanced upward.
+Heliopause continues [Zephyr Starlight](https://github.com/Kirilpro6284/zephyr-starlight)
+by **Kirilpro6284**, with Intel compatibility fixes, revised lighting reconstruction,
+and English and Simplified Chinese shader settings.
 
-| Profile | Internal render scale | Diffuse / reflection / shadow samples | Reflection trace | POM steps |
-|---|---:|---:|---|---:|
-| Performance | 75% | 1 / 1 / 1 | Half resolution, 1 bounce | Off |
-| Balanced (default) | 100% | 1 / 1 / 2 | Half resolution, 3 bounces | 32 |
-| High | 100% | 1 / 2 / 2 | Half resolution, 4 bounces | 64 |
-| Ultra | 100% | 2 / 4 / 4 | Full resolution, 6 bounces | 128 |
+[Releases](https://github.com/LycanW/heliopause/releases) ·
+[Report an issue](https://github.com/LycanW/heliopause/issues) ·
+[Changelog](Changelog.md)
 
-The profiles also scale irradiance-cache samples, filtering, volumetric-light
-steps, subsurface-scattering steps and camera-effect samples. They set the same
-quality controls so switching back to a lower tier restores those settings.
-Material texture resolution, POM depth, scene-capture options and memory-pool
-capacities remain independently adjustable. Set **Terrain > Parallax Occlusion
-Mapping > Texture Resolution** to the resource pack's resolution; the default is
-16. POM requires height data in the normal texture's alpha channel.
+![Colored ceiling lights and reflections in a tiled corridor](assets/heliopause-colored-lighting.png)
 
-Existing saved shader options take precedence over defaults. Select a profile
-explicitly or reset shader options to use the new defaults. These tiers describe
-configured rendering work; no frame-rate target has been measured or guaranteed.
-
-![screenshot](assets/2026-01-01_01.25.04.png)
-<sub><sup>Resource pack used: AVPBR Retextured R5</sup></sub>
-
-<font size="6"><h1 align = "center">⭐ zephyr-starlight</h1></font>
-<font size="3"><p align = "center">Experimental real-time path traced shaderpack for Minecraft</p></font>
-
-> [!WARNING]
-> Disclaimer: This shaderpack is an early work-in-progress so 
-> bugs, missing features and performance issues are to be expected.
-
-# Information
-
-* Download: https://modrinth.com/shader/zephyr-starlight
-* Minecraft 1.21+ and Iris 1.9+ is recommended. OptiFine is not supported
-* For suggestions, ideas and discussions related to this shaderpack, head over to the `#zephyr-starlight-kirilpro` channel in the [shaderLABS](https://discord.gg/RpzWN9S) Discord server.
-* You can support me by becoming a patron: https://www.patreon.com/Kirilpro6284
+> **v0.3.0 release preparation:** the current ReLAX integration contains translated
+> NVIDIA shader source. Public release is on hold pending redistribution permission
+> or a replacement implementation. See [third-party provenance](THIRD_PARTY/NRD.md).
 
 ## Features
 
-* Accurate ray-geometry intersection
-* Path traced diffuse, reflections and sun shadows
-* Temporal anti-aliasing and upsampling
-* Normal & specular mapping support
-* Physically based sky rendering
-    * Hillaire multi-scattering approximation
-* Sparse irradiance cache for diffuse multi-bounce approximation
-* Reflection motion vector calculation (no TAA ghosting on reflections)
-* Spatiotemporal denoising
-* Camera effects: motion blur & depth of field
-* Post-processing: auto exposure & chromatic aberration
+- Path-traced diffuse lighting, multi-bounce reflections and sunlight shadows.
+- Geometry-aware ray intersections and a sparse irradiance cache for indirect light.
+- SVGF-family diffuse and specular denoising, labeled **SVGF (NRD-style)** in
+  settings. The current kernels are translated NVIDIA NRD ReLAX shaders.
+- Mirror virtual-surface reconstruction, separate mirror history control, and
+  importance sampling for reflected sunlight in the irradiance cache.
+- LabPBR normal and specular maps, parallax occlusion mapping (POM), and integrated
+  materials for vanilla textures. Resource-pack material values take precedence.
+- Physical sky, water refraction and caustics, volumetric light and subsurface scattering.
+- Temporal antialiasing and upscaling, bloom, exposure, depth of field and motion blur.
+- Four quality profiles and English / Simplified Chinese settings.
 
-## Acknowledgements
+See [Denoising integration notes](RELAX.md) for signal inputs, controls and memory costs.
 
-* [lucysir](https://github.com/kadir014) - Blue noise sampling for path tracing
-* [jbritain](https://github.com/jbritain) - AMD support, blue noise texture (https://discordapp.com/channels/237199950235041794/525510804494221312/1416364500591837216)
-* [agentclone8](https://github.com/agentclone8) - BRDF Function
-* [sixthsurge](https://github.com/sixthsurge) - Text rendering for debugging
-* [Player2950](https://github.com/ArslanShakirov) - Playtesting
+## Compatibility and installation
 
-## Compatibility / Mod Support
+The current development and validation target is **Minecraft 26.3, Iris 1.11.7,
+and Intel Arc A770 on Windows**. Other GPU, driver and Minecraft combinations
+have not been qualified for this release. Iris must provide SSBO and custom-image
+support. OptiFine and macOS are unsupported; Distant Horizons and Voxy integration
+are not implemented.
 
-* GPUs: NVIDIA, AMD
-* Minecraft - version 1.21 and above
-* Iris - version 1.8.0 and above
-* Optifine - not supported
-* Distant Horizons/Voxy - not supported (planned)
-* OrthoCamera - supported but still broken in a few cases
-* macOS - not supported
+When a release is available, place `Heliopause-v0.3.0.zip` in Minecraft's
+`shaderpacks` directory and select it in Iris. A shaderpack ZIP must contain
+`shaders/` directly at its root. For a source checkout, use the directory containing
+this README and `shaders/` as the pack root.
 
-## Performance Tips
+A LabPBR resource pack is optional, but normal, height and custom specular effects
+require matching material textures. For POM, set **Terrain > Parallax Occlusion
+Mapping > Texture Resolution** to the resource pack's resolution; the default is
+16. Height data comes from the normal texture's alpha channel.
 
-* Sample count: This directly affects the quality of the lighting. Higher sample counts show less noise and more detailed lighting/reflections at the cost of performance. Keep this at 1 for the best performance.
-* Diffuse Lighting > Denoising Passes: The amount of passes used for diffuse lighting denoising. Even though not as high as sample count, this has a performance impact too. You can still get decent lighting with just 6 passes most of the time, but a pass count of 8 is recommended for the best lighting. You can set this to 0 if you're fine with the noise.
-* If you are in a completely closed room with no outdoor light entering it, set Shadow Samples to 0. This will disable sunlight.
-* Irradiance Cache > Update Interval: The maximum amount of frames that are allowed to pass between updates of the same part of the irradiance cache. Lower values cost more performance, but result in more responsive lighting and less noise in reflections.
+## Quality profiles
 
-## TODO / Known Issues
+New installations and reset options use **Balanced**. Normal and specular mapping
+are enabled in every profile; POM is enabled from Balanced upward.
 
-* ~~TAAU looks *very* bad currently. I don't recommend using it unless you really need FPS.~~
-* ~~Currently, you need a labPBR resource pack enabled for this shaderpack to function properly.~~
-* Rain particles are not rendered.
-* Reflections (especially mirror-like ones) show a lot of noise and flickering. Lowering Irradiance Cache -> Update Interval and increasing reflection samples in path tracing settings can improve it.
-* The shaderpack takes very long to load on first use, but it should be faster on subsequent loads.
-* Normal maps don't show up in reflections.
-* Breaking blocks in caves shows light leaking for a split second. This is unavoidable now.
-* In some cases, parts of the terrain will fail to voxelize. Increasing Triangle and Voxel Array Size usually fixes it.
-* ~~TAA produces a lot of ghosting on smooth reflections in movement. It might be possible to improve on this by using a reflection virtual depth buffer for TAA reprojection.~~
+| Profile | Internal render scale | Diffuse / reflection / shadow samples | Reflection bounces | POM steps |
+|---|---:|---:|---:|---:|
+| Performance | 75% | 1 / 1 / 1 | 1 | Off |
+| Balanced (default) | 100% | 1 / 1 / 2 | 3 | 32 |
+| High | 100% | 1 / 2 / 2 | 4 | 64 |
+| Ultra | 100% | 2 / 4 / 4 | 6 | 128 |
 
-## License
+Diffuse and reflections run at full internal resolution. Profiles also adjust
+cache sampling, denoising, volumetrics and camera effects. Performance uses three
+ReLAX spatial passes; the other tiers use five. These tiers describe rendering
+work, not guaranteed frame rates.
 
-* This project is available under the [Creative Commons BY-NC-SA 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en) license. [View full license text](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.txt)
+Saved shader options override defaults. Select a profile explicitly or reset
+options after upgrading. Material resolution, POM depth, scene capture and memory
+capacities remain independently adjustable.
+
+## Gallery
+
+![A sunlit opening reflected across an indoor pool](assets/heliopause-water-lighting.png)
+
+![A tall hall lit by emissive blocks and reflected light](assets/heliopause-reflection-hall.png)
+
+Screenshots supplied by LycanW, captured on October 25, 2026. They illustrate
+development scenes and material effects, and predate the final v0.3.0 fixes.
+They are not a comparison or validation capture of the release build.
+
+## Current limitations
+
+This is an experimental shaderpack. Shadow-placement accuracy remains under
+investigation. ReLAX currently receives camera motion for static geometry;
+independent entity motion, animated geometry and moving reflected objects need
+further work. See [known issues](KNOWN_ISSUES.md) before reporting a problem.
+
+Include Minecraft / Iris versions, GPU and driver, selected profile, resource
+pack, and a reproducible scene when opening an issue in
+[this repository](https://github.com/LycanW/heliopause/issues).
+
+## Credits and licenses
+
+- **LycanW** — Heliopause maintenance, compatibility fixes and subsequent changes.
+- **[Kirilpro6284](https://github.com/Kirilpro6284)** — original Zephyr Starlight.
+- **[NVIDIA](https://github.com/NVIDIA-RTX/NRD)** — NRD ReLAX and MathLib.
+  This software contains source code provided by NVIDIA Corporation.
+- **[lucysir / kadir014](https://github.com/kadir014)** — blue-noise sampling.
+- **[jbritain](https://github.com/jbritain)** — upstream AMD support and blue-noise texture.
+- **[agentclone8](https://github.com/agentclone8)** — BRDF function.
+- **[sixthsurge](https://github.com/sixthsurge)** — debug text rendering.
+- **[Player2950 / ArslanShakirov](https://github.com/ArslanShakirov)** — playtesting.
+
+The original shaderpack and Heliopause changes retain **[CC BY-NC-SA 4.0](LICENSE)**.
+NVIDIA-derived sources retain their separate **[NVIDIA RTX SDK license](THIRD_PARTY/NRD-LICENSE.txt)**;
+MathLib helpers retain their **[MIT license](THIRD_PARTY/MathLib-LICENSE.txt)**.
+These dependencies are not relicensed under CC BY-NC-SA. Their revisions,
+translation process and current redistribution restriction are recorded in
+[THIRD_PARTY/NRD.md](THIRD_PARTY/NRD.md).

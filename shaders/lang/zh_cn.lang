@@ -3,16 +3,17 @@ profile.BALANCED = §b均衡（默认）
 profile.FANCY    = §9高画质
 profile.ULTRA    = §d极高
 
-option.MAIN_TITLE = Zephyr Starlight，作者：§9Kirilpro6284
+option.MAIN_TITLE = Heliopause，作者：§9LycanW
+option.MAIN_TITLE.comment = 基于 Kirilpro6284 的 Zephyr Starlight。
 
-value.MAIN_TITLE.0 = §dv0.2.2
-value.MAIN_TITLE.1 = §cv0.2.2
-value.MAIN_TITLE.2 = §6v0.2.2
-value.MAIN_TITLE.3 = §ev0.2.2
-value.MAIN_TITLE.4 = §av0.2.2
-value.MAIN_TITLE.5 = §bv0.2.2
-value.MAIN_TITLE.6 = §9v0.2.2
-value.MAIN_TITLE.7 = §5v0.2.2
+value.MAIN_TITLE.0 = §dv0.3.0
+value.MAIN_TITLE.1 = §cv0.3.0
+value.MAIN_TITLE.2 = §6v0.3.0
+value.MAIN_TITLE.3 = §ev0.3.0
+value.MAIN_TITLE.4 = §av0.3.0
+value.MAIN_TITLE.5 = §bv0.3.0
+value.MAIN_TITLE.6 = §9v0.3.0
+value.MAIN_TITLE.7 = §5v0.3.0
 
 screen.PATH_TRACING    = 路径追踪
 screen.ATMOSPHERICS    = 大气与光照
@@ -27,7 +28,7 @@ screen.PT_IRCACHE      = 辐照度缓存
 screen.PT_DIFFUSE    = 漫反射光照
 screen.PT_REFLECTION = 反射
 screen.PT_SHADOW     = 阴影
-screen.PT_DENOISING = NVIDIA ReLAX 时空降噪
+screen.PT_DENOISING = SVGF 时空降噪（NRD 风格）
 
 screen.PT_SPATIAL_FILTER  = 空间滤波
 screen.PT_TEMPORAL_FILTER = 时间滤波

@@ -26,7 +26,7 @@ void main() {
     vec3 position=screenToPlayerPos(vec3((vec2(pixel)+0.5)*internalTexelSize,depth)).xyz;
     float viewZ=-(gbufferModelView*vec4(position,1.0)).z;
     nrStore(100,nrPixelCoord,vec4(viewZ,0.0,0.0,0.0));
-    // Zephyr's VNDF receives mat.roughness as GGX alpha. NRD expects sqrt(alpha).
+    // The VNDF sampler receives mat.roughness as GGX alpha. NRD expects sqrt(alpha).
     nrStore(1,nrPixelCoord,vec4(nrEncodeNormalRoughness(mat.textureNormal,sqrt(mat.roughness)),0.0));
     nrStore(0,nrPixelCoord,texelFetch(colortex2,pixel,0));
 }

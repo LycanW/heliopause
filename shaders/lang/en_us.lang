@@ -3,16 +3,17 @@ profile.BALANCED = §bBalanced (Default)
 profile.FANCY    = §9High
 profile.ULTRA    = §dUltra
 
-option.MAIN_TITLE = Zephyr Starlight by §9Kirilpro6284
+option.MAIN_TITLE = Heliopause by §9LycanW
+option.MAIN_TITLE.comment = Based on Zephyr Starlight by Kirilpro6284.
 
-value.MAIN_TITLE.0 = §dv0.2.2
-value.MAIN_TITLE.1 = §cv0.2.2
-value.MAIN_TITLE.2 = §6v0.2.2
-value.MAIN_TITLE.3 = §ev0.2.2
-value.MAIN_TITLE.4 = §av0.2.2
-value.MAIN_TITLE.5 = §bv0.2.2
-value.MAIN_TITLE.6 = §9v0.2.2
-value.MAIN_TITLE.7 = §5v0.2.2
+value.MAIN_TITLE.0 = §dv0.3.0
+value.MAIN_TITLE.1 = §cv0.3.0
+value.MAIN_TITLE.2 = §6v0.3.0
+value.MAIN_TITLE.3 = §ev0.3.0
+value.MAIN_TITLE.4 = §av0.3.0
+value.MAIN_TITLE.5 = §bv0.3.0
+value.MAIN_TITLE.6 = §9v0.3.0
+value.MAIN_TITLE.7 = §5v0.3.0
 
 screen.PATH_TRACING    = Path Tracing
 screen.ATMOSPHERICS    = Atmosphere & Lighting
@@ -27,7 +28,7 @@ screen.PT_IRCACHE      = Irradiance Cache
 screen.PT_DIFFUSE    = Diffuse Lighting
 screen.PT_REFLECTION = Reflections
 screen.PT_SHADOW     = Shadows
-screen.PT_DENOISING = NVIDIA ReLAX
+screen.PT_DENOISING = SVGF (NRD-style)
 
 screen.PT_SPATIAL_FILTER  = Spatial Filter
 screen.PT_TEMPORAL_FILTER = Temporal Filter

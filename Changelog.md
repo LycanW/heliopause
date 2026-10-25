@@ -1,3 +1,37 @@
+# Heliopause v0.3.0 (unreleased)
+
+First Heliopause version maintained by **LycanW**, continuing Zephyr Starlight
+v0.2.2 hotfix1 by **Kirilpro6284**.
+
+- Rename the project and English / Chinese settings title to Heliopause by LycanW.
+- Fix compute dispatch compatibility and UV expressions on Intel GPUs.
+- Enable resource-pack specular maps by default and preserve their material values.
+- Add Simplified Chinese settings and Performance / Balanced / High / Ultra profiles.
+  Balanced enables normal mapping and 32-step POM by default.
+- Correct numeric irradiance-cache smoothing, the 16384-entry cache setting and
+  two-sample blue-noise resource selection.
+- Replace the former diffuse and specular SVGF filters with an Iris port of NVIDIA
+  NRD ReLAX. The settings label is **SVGF (NRD-style)**; this is a display name,
+  not a change in kernel provenance.
+- Correct compute synchronization, cache update ordering, ReLAX projection jitter
+  and discrete metadata handling.
+- Stabilize the reproduced static flat-mirror brightness pulses through
+  normal-aware cache identity, surface-consistent lighting reuse, reflected-sun
+  importance sampling, virtual-surface reconstruction and a separate mirror history.
+- Refresh the README, gallery, credits and current known issues.
+- Remove obsolete COMPATIBILITY.txt patch notes.
+
+The static-mirror repair was validated in a controlled Arc A770 scene, including
+camera motion, lighting changes and fractional render scaling. This does not
+close the separate shadow-placement issue or qualify dynamic reflected objects.
+
+Publication is pending resolution of translated NRD shader source redistribution;
+see [third-party provenance](THIRD_PARTY/NRD.md). No v0.3.0 release is published.
+
+---
+
+The entries below preserve the original Zephyr Starlight release history.
+
 # v0.2.2 hotfix1
 
 Changes over v0.2.2:
