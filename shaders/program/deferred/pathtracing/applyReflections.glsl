@@ -13,6 +13,8 @@
 
 #include "/include/textureSampling.glsl"
 
+uniform sampler2D nrMirrorPayload;
+
 /* RENDERTARGETS: 7 */
 layout (location = 0) out vec4 color;
 
@@ -35,5 +37,7 @@ void main ()
     vec3 currPos = screenToPlayerPos(vec3(uv, depth)).xyz;
     vec3 reflectedIrradiance = upsampleRadiance(currPos, mat.geoNormal, mat.textureNormal);
 
+    reflectedIrradiance=texelFetch(nrMirrorPayload,texel,0).rgb
+        +reflectedIrradiance*texelFetch(nrMirrorPayload,texel+ivec2(int(internalScreenSize.x),0),0).rgb;
     color.rgb += EXPONENT_BIAS * reflectedIrradiance * schlickFresnel(mat.F0, dot(mat.textureNormal, normalize(screenToPlayerPos(vec3(uv, 0.0)).xyz - currPos)));
 }

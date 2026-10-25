@@ -6,13 +6,16 @@
         return F0 + (1.0 - F0) * pow(1.0 - theta, 5.0);
     }
 
-    vec3 evalCookBRDF (
+    void evalCookBRDFTerms (
         vec3 w0, 
         vec3 w1, 
         float roughness, 
         vec3 normal, 
         vec3 albedo, 
-        vec3 reflectance
+        vec3 reflectance,
+        out vec3 diffuse,
+        out vec3 specular,
+        out vec3 fresnelReflectance
     ) {
         w1 = -w1;
 
@@ -28,10 +31,10 @@
         float VdotH = clamp(dot(w1, H), 0.001, 1.0);
 
         // Fresnel
-        vec3 fresnelReflectance = schlickFresnel(reflectance, VdotH); //Schlick's Approximation
+        fresnelReflectance = schlickFresnel(reflectance, VdotH); //Schlick's Approximation
 
         // phong diffuse
-        vec3 diffuse = NdotL * albedo;
+        diffuse = NdotL * albedo;
 
         // Geometric attenuation
         float k = 0.5 * alpha;
@@ -41,12 +44,23 @@
         float lowerTerm = NdotH * NdotH * (alpha2 - 1.0) + 1.0;
         float normalDistributionFunctionGGX = alpha2 / (PI * lowerTerm * lowerTerm);
 
-        vec3 specular = vec3(normalDistributionFunctionGGX * geometry) / (4.0 * NdotV);
+        specular = vec3(normalDistributionFunctionGGX * geometry) / (4.0 * NdotV);
     
-        return mix(diffuse, specular, fresnelReflectance);
+
     }
     
-    vec3 sampleVNDF (vec3 rayDir, vec3 normal, float alpha, vec2 rand)
+    vec3 evalCookBRDF(vec3 w0,vec3 w1,float roughness,vec3 normal,vec3 albedo,vec3 reflectance){
+        vec3 diffuse,specular,fresnel;
+        evalCookBRDFTerms(w0,w1,roughness,normal,albedo,reflectance,diffuse,specular,fresnel);
+        return mix(diffuse,specular,fresnel);
+    }
+    void evalCookBRDFLobes(vec3 w0,vec3 w1,float roughness,vec3 normal,vec3 albedo,vec3 reflectance,out vec3 diffuse,out vec3 specular){
+        vec3 d,s,f;
+        evalCookBRDFTerms(w0,w1,roughness,normal,albedo,reflectance,d,s,f);
+        diffuse=d*(1.0-f);specular=s*f;
+    }
+
+    vec3 sampleVNDFShared (vec3 rayDir, vec3 normal, float alpha, vec2 rand, bool foldHemisphere)
     {
         rayDir = -rayDir;
 
@@ -69,7 +83,10 @@
         vec3 result = t1 * T1 + t2 * T2 + sqrt(max(0.0, 1.0 - t1 * t1 - t2 * t2)) * Vh;
         vec3 reflectedDir = -reflect(rayDirT, normalize(vec3(result.xy * alpha, max(0.0, result.z))));
 
-        return T * vec3(reflectedDir.xy, abs(reflectedDir.z));
+        return T * (foldHemisphere?vec3(reflectedDir.xy,abs(reflectedDir.z)):reflectedDir);
     }
 
-#endif 
+    vec3 sampleVNDF(vec3 rayDir,vec3 normal,float alpha,vec2 rand){return sampleVNDFShared(rayDir,normal,alpha,rand,true);}
+    vec3 sampleVNDFUnfolded(vec3 rayDir,vec3 normal,float alpha,vec2 rand){return sampleVNDFShared(rayDir,normal,alpha,rand,false);}
+
+#endif

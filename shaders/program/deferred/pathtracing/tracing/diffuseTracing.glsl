@@ -18,23 +18,6 @@
 layout (rgba16f) uniform image2D colorimg2;
 layout (local_size_x = 8, local_size_y = 8) in;
 
-#ifdef DIFFUSE_HALF_RES
-    #if TAA_UPSCALING_FACTOR == 100
-        const vec2 workGroupsRender = vec2(0.5, 0.5);
-    #elif TAA_UPSCALING_FACTOR == 83
-        const vec2 workGroupsRender = vec2(0.415, 0.415);
-    #elif TAA_UPSCALING_FACTOR == 75
-        const vec2 workGroupsRender = vec2(0.375, 0.375);
-    #elif TAA_UPSCALING_FACTOR == 66
-        const vec2 workGroupsRender = vec2(0.33, 0.33);
-    #elif TAA_UPSCALING_FACTOR == 50
-        const vec2 workGroupsRender = vec2(0.25, 0.25);
-    #elif TAA_UPSCALING_FACTOR == 33
-        const vec2 workGroupsRender = vec2(0.165, 0.165);
-    #elif TAA_UPSCALING_FACTOR == 25
-        const vec2 workGroupsRender = vec2(0.125, 0.125);
-    #endif
-#else
     #if TAA_UPSCALING_FACTOR == 100
         const vec2 workGroupsRender = vec2(1.0, 1.0);
     #elif TAA_UPSCALING_FACTOR == 83
@@ -50,17 +33,11 @@ layout (local_size_x = 8, local_size_y = 8) in;
     #elif TAA_UPSCALING_FACTOR == 25
         const vec2 workGroupsRender = vec2(0.25, 0.25);
     #endif
-#endif
 
 void main ()
 {
-    #ifdef DIFFUSE_HALF_RES
-        ivec2 offsetCoord = min(ivec2(gl_GlobalInvocationID.xy) * 2 + checker2x2(frameCounter), ivec2(internalScreenSize) - 1);
-        uint state = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * uint(internalScreenSize.x / 2.0) + uint(internalScreenSize.x / 2.0) * uint(internalScreenSize.y / 2.0) * (frameCounter & 1023u);
-    #else
         ivec2 offsetCoord = ivec2(gl_GlobalInvocationID.xy);
         uint state = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * uint(internalScreenSize.x) + uint(internalScreenSize.x) * uint(internalScreenSize.y) * (frameCounter & 1023u);
-    #endif
 
     float depth = texelFetch(depthtex1, offsetCoord, 0).x;
 
@@ -89,6 +66,7 @@ void main ()
 
     diffuseRay.origin = rayOrigin + mat.geoNormal * 0.005;
     vec3 radiance = vec3(0.0);
+    float nrHitDistance = 0.0;
 
     for (int i = 0; i < DIFFUSE_SAMPLES; i++) {
         #if SAMPLING_METHOD == 1
@@ -115,6 +93,7 @@ void main ()
 
         #ifdef GLASS_REFRACTION
             RayHitInfo rt = TraceGenericRay(diffuseRay, DIFFUSE_MAX_RT_DISTANCE, true, false);
+            nrHitDistance += rt.dist;
 
             vec3 hitPos = diffuseRay.origin + diffuseRay.direction * rt.dist;
 
@@ -135,6 +114,7 @@ void main ()
             }
         #else
             RayHitInfo rt = TraceGenericRay(diffuseRay, DIFFUSE_MAX_RT_DISTANCE, true, true);
+            nrHitDistance += rt.dist;
 
             vec3 hitPos = diffuseRay.origin + diffuseRay.direction * (rt.dist - 0.002);
         #endif    
@@ -173,5 +153,5 @@ void main ()
         #endif
     }
 
-    imageStore(colorimg2, ivec2(gl_GlobalInvocationID.xy), vec4(radiance * rcp(DIFFUSE_SAMPLES), 1.0));
+    imageStore(colorimg2, ivec2(gl_GlobalInvocationID.xy), vec4(radiance * rcp(DIFFUSE_SAMPLES), nrHitDistance * rcp(DIFFUSE_SAMPLES)));
 }

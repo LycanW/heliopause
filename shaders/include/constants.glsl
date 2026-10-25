@@ -35,8 +35,6 @@
         const int colortex0Format =  RGB16F;         // previous frame normal + depth
         const int colortex1Format =  RG32UI;         // translucent material data
         const int colortex2Format =  RGBA16F;        // tracing output
-        const int colortex3Format =  RGBA16F;        // diffuse temporal
-        const int colortex4Format =  RGBA16F;        // reflection temporal
         const int colortex5Format =  RGBA16F;        // shadow temporal
         const int colortex6Format =  RGBA16F;        // TAA history
         const int colortex7Format =  R11F_G11F_B10F; // scene
@@ -59,8 +57,6 @@
         const bool colortex0Clear  = false;
         const bool colortex1Clear  = false;
         const bool colortex2Clear  = false;
-        const bool colortex3Clear  = false;
-        const bool colortex4Clear  = false;
         const bool colortex5Clear  = false;
         const bool colortex6Clear  = false;
         const bool colortex7Clear  = false;

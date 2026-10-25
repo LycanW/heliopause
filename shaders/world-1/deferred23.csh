@@ -1,8 +1,8 @@
 #version 430 compatibility
-
+#include "/include/uniforms.glsl"
 #include "/include/config.glsl"
-
-#define SWAP_TO colorimg2
-#define READ_FROM colortex4
-
-#include "/program/swapBuffers.glsl"
+#define NR_ATROUS_INDEX 1
+#define NR_LAST_PASS (RELAX_ATROUS_PASSES==2)
+#define NR_OUTPUT_COLOR2
+#include "/program/relax/official_specular_atrous.glsl"
+#include "/program/relax/dispatch.glsl"

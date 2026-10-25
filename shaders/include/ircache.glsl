@@ -1,6 +1,14 @@
 #ifndef INCLUDE_IRCACHE
     #define INCLUDE_IRCACHE
 
+    // Only the update pass consumes the immutable pre-update cache. Requests
+    // still target the live table, and later rendering consumes the new values.
+    #ifdef IRCACHE_UPDATE_READ_HISTORY
+        #define IRCACHE_LIGHTING_ENTRIES ircacheHistory.entries
+    #else
+        #define IRCACHE_LIGHTING_ENTRIES ircache.entries
+    #endif
+
     uint packCachePos (ivec4 pos) 
     {
         pos &= ivec4(511, 511, 511, 31);
@@ -18,6 +26,16 @@
         return (uint(pos.x) * 73856093) ^ (uint(pos.y) * 19349663) ^ (uint(pos.z) * 83492791) ^ (uint(pos.w) * 51655181);
     }
 
+    uint packCacheNormal(vec3 normal){
+        uvec2 p=uvec2(14.0*octEncode(normal)+0.5);
+        // The outer octahedron edges have duplicate representations. Choose the
+        // same representative after decoding a cache entry for another query.
+        if(p.y==0u||p.y==14u)p.x=min(p.x,14u-p.x);
+        if(p.x==0u||p.x==14u)p.y=min(p.y,14u-p.y);
+        return (p.x<<4u)|p.y;
+    }
+    uint hashCacheSurface(ivec4 pos,uint normalKey){return hashCachePos(pos)^(normalKey*2654435761u);}
+
     uint selectCascade (vec3 pos)
     {   
         float stepSize = clamp(floor(0.5 * log2(lengthSquared(pos)) + log2(6.0 / IRCACHE_CASCADE_RES)), -2.0, 3.0);
@@ -34,25 +52,25 @@
         ivec4 voxelPos = playerToVoxelPos(pos, normal, lod);
 
         uint packedPos = packCachePos(voxelPos);
-        uint hashedPos = hashCachePos(voxelPos);
+        uint packedNormal = packCacheNormal(normal);
+        uint hashedPos = hashCacheSurface(voxelPos,packedNormal);
 
         if (packedPos == 0u) return IrradianceSum(vec3(0.0), vec3(0.0));
 
         uvec3 packedOrigin = uvec3(256.0 * fract(exp2(2.0 - float(lod)) * (cameraMod16 + pos) + normal * 0.475));
-        uvec2 packedNormal = uvec2(14.0 * octEncode(normal) + 0.5);
 
         for (uint attempt = 0u; attempt < uint(IRCACHE_PROBE_ATTEMPTS); attempt++)
         {   
             uint index = (hashedPos + (attempt * attempt + attempt) / 2) % IRCACHE_VOXEL_ARRAY_SIZE;
 
-            if (ircache.entries[index].packedPos == packedPos && ircache.entries[index].radiance != IRCACHE_INV_MARKER) {
+            if (IRCACHE_LIGHTING_ENTRIES[index].packedPos == packedPos && (IRCACHE_LIGHTING_ENTRIES[index].traceOrigin&255u)==packedNormal && IRCACHE_LIGHTING_ENTRIES[index].radiance != IRCACHE_INV_MARKER) {
                 if (atomicMin(ircache.entries[index].rank, rank + 1u) >= rank + 1u) {
                     if (atomicExchange(ircache.entries[index].lastFrame, frameCounter) != frameCounter) {
-                        ircache.entries[index].traceOrigin = (packedOrigin.x << 24u) | (packedOrigin.y << 16u) | (packedOrigin.z << 8u) | (packedNormal.x << 4u) | (packedNormal.y);
+                        ircache.entries[index].traceOrigin = (packedOrigin.x << 24u) | (packedOrigin.y << 16u) | (packedOrigin.z << 8u) | packedNormal;
                     }
                 }
 
-                return IrradianceSum(SECONDARY_GI_BRIGHTNESS * unpackHalf4x16(ircache.entries[index].radiance).rgb, unpack3x10(ircache.entries[index].direct));
+                return IrradianceSum(SECONDARY_GI_BRIGHTNESS * unpackHalf4x16(IRCACHE_LIGHTING_ENTRIES[index].radiance).rgb, unpack3x10(IRCACHE_LIGHTING_ENTRIES[index].direct));
             }
         }
 
@@ -61,7 +79,7 @@
             uint index = (hashedPos + (attempt * attempt + attempt) / 2) % IRCACHE_VOXEL_ARRAY_SIZE;
 
             if (atomicCompSwap(ircache.entries[index].packedPos, 0u, packedPos) == 0u) {
-                ircache.entries[index].traceOrigin = (packedOrigin.x << 24u) | (packedOrigin.y << 16u) | (packedOrigin.z << 8u) | (packedNormal.x << 4u) | (packedNormal.y);
+                ircache.entries[index].traceOrigin = (packedOrigin.x << 24u) | (packedOrigin.y << 16u) | (packedOrigin.z << 8u) | packedNormal;
                 ircache.entries[index].rank = rank + 1u;
                 ircache.entries[index].lastFrame = frameCounter;
                 break;
@@ -141,15 +159,16 @@
     {   
         ivec4 voxelPos = playerToVoxelPos(pos, normal, lod);
 
-        uint hashedPos = hashCachePos(voxelPos);
+        uint packedNormal = packCacheNormal(normal);
+        uint hashedPos = hashCacheSurface(voxelPos,packedNormal);
         uint packedPos = packCachePos(voxelPos);
 
         for (uint attempt = 0u; attempt < uint(IRCACHE_PROBE_ATTEMPTS); attempt++)
         {   
             uint index = (hashedPos + (attempt * attempt + attempt) / 2) % IRCACHE_VOXEL_ARRAY_SIZE;
 
-            if (ircache.entries[index].packedPos == packedPos && ircache.entries[index].radiance != uvec2(0u)) {
-                return IrradianceSum(unpackHalf4x16(ircache.entries[index].radiance).rgb, unpack3x10(ircache.entries[index].direct));
+            if (IRCACHE_LIGHTING_ENTRIES[index].packedPos == packedPos && (IRCACHE_LIGHTING_ENTRIES[index].traceOrigin&255u)==packedNormal && IRCACHE_LIGHTING_ENTRIES[index].radiance != uvec2(0u)) {
+                return IrradianceSum(unpackHalf4x16(IRCACHE_LIGHTING_ENTRIES[index].radiance).rgb, unpack3x10(IRCACHE_LIGHTING_ENTRIES[index].direct));
             }
         }
 

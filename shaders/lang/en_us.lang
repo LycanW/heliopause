@@ -27,7 +27,7 @@ screen.PT_IRCACHE      = Irradiance Cache
 screen.PT_DIFFUSE    = Diffuse Lighting
 screen.PT_REFLECTION = Reflections
 screen.PT_SHADOW     = Shadows
-screen.PT_DENOISING  = Denoiser
+screen.PT_DENOISING = NVIDIA ReLAX
 
 screen.PT_SPATIAL_FILTER  = Spatial Filter
 screen.PT_TEMPORAL_FILTER = Temporal Filter
@@ -44,8 +44,6 @@ value.NOISE_METHOD.1 = Blue Noise
 
 option.DIFFUSE_SAMPLES               = Diffuse Samples
 option.DIFFUSE_MAX_RT_DISTANCE       = Diffuse Trace Distance
-option.PT_DIFFUSE_ACCUMULATION_LIMIT = Max Accumulated Frames
-option.DIFFUSE_DENOISE_PASSES        = Denoising Passes
 option.SAMPLING_METHOD               = Sampling Method
 
 value.SAMPLING_METHOD.0              = Uniform
@@ -59,14 +57,12 @@ value.SUNLIGHT_GI_QUALITY.0          = Low
 value.SUNLIGHT_GI_QUALITY.1          = Medium
 value.SUNLIGHT_GI_QUALITY.2          = High
 
-option.DIFFUSE_FILTER_QUALITY        = Denoiser Quality
 
 value.DIFFUSE_FILTER_QUALITY.0       = Low
 value.DIFFUSE_FILTER_QUALITY.1       = High
 
 option.REFLECTION_SAMPLES               = Reflection Samples
 option.REFLECTION_MAX_RT_DISTANCE       = Reflection Trace Distance
-option.PT_REFLECTION_ACCUMULATION_LIMIT = Max Accumulated Frames
 option.REFLECTION_ROUGHNESS_THRESHOLD   = Reflection Roughness Threshold
 option.REFLECTION_BOUNCES               = Reflection Bounces
 option.REFLECTION_PER_PIXEL_SHADOWS     = Per Pixel Shadow Calculation
@@ -78,18 +74,12 @@ option.PT_SHADOW_ACCUMULATION_LIMIT = Max Accumulated Frames
 option.SHADOW_SOFTNESS              = Shadow Softness
 option.SHADOW_SKIP_CLIPPING         = Skip Clipping
 
-option.DIFFUSE_HALF_RES    = Half Res Trace
-option.REFLECTION_HALF_RES = Half Res Trace
 option.SHADOW_HALF_RES     = Half Res Trace
 
-option.DENOISER_DEPTH_WEIGHT     = Denoiser Depth Weight
-option.DENOISER_NORMAL_WEIGHT    = Denoiser Normal Weight
-option.DENOISER_INTENSITY_WEIGHT = Denoiser Intensity Weight
+option.DENOISER_DEPTH_WEIGHT = Shadow filter depth weight
 
-option.TEMPORAL_PREFILTERING      = Temporal Prefiltering
-option.TEMPORAL_NORMAL_TOLERANCE  = Temporal Normal Tolerance
+option.TEMPORAL_NORMAL_TOLERANCE = Shadow history normal tolerance
 
-option.DENOISER_VARIANCE_GUIDE    = Variance Guide
 
 option.IRCACHE_VOXEL_ARRAY_SIZE = Voxel Array Size
 option.IRCACHE_PROBE_ATTEMPTS   = Probe Attempts
@@ -254,3 +244,14 @@ suffix.HAND_FOV               = °
 
 option.DEBUG_IRCACHE = View Irradiance Cache
 option.DEBUG_VOXELIZATION = View Voxelization
+option.RELAX_DIFFUSE_HISTORY=Diffuse history limit
+option.RELAX_SPECULAR_HISTORY=Reflection history limit
+option.RELAX_FAST_HISTORY=Fast history length
+option.RELAX_ATROUS_PASSES=Spatial filter passes
+option.RELAX_DIFFUSE_PREPASS=Diffuse prefilter radius
+option.RELAX_SPECULAR_PREPASS=Reflection prefilter radius
+
+option.IRCACHE_LIGHT_GUIDING=Cache sunlight importance sampling
+option.IRCACHE_LIGHT_GUIDING.comment=Combines hemisphere sampling with weighted GGX light proposals. Reduces rare bright samples from specular sunlight without removing light paths. Adds up to three geometry rays per active cache entry and visibility rays.
+option.TAA_MIRROR_HISTORY=Perfect mirror history
+option.TAA_MIRROR_HISTORY.comment=History limit for static planar perfect mirrors. Motion reduces it to the general TAA limit; newly exposed geometry limits it to the available history.

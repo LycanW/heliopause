@@ -27,7 +27,7 @@ screen.PT_IRCACHE      = 辐照度缓存
 screen.PT_DIFFUSE    = 漫反射光照
 screen.PT_REFLECTION = 反射
 screen.PT_SHADOW     = 阴影
-screen.PT_DENOISING  = 降噪
+screen.PT_DENOISING = NVIDIA ReLAX 时空降噪
 
 screen.PT_SPATIAL_FILTER  = 空间滤波
 screen.PT_TEMPORAL_FILTER = 时间滤波
@@ -44,8 +44,6 @@ value.NOISE_METHOD.1 = 蓝噪声
 
 option.DIFFUSE_SAMPLES               = 漫反射采样数
 option.DIFFUSE_MAX_RT_DISTANCE       = 漫反射追踪距离
-option.PT_DIFFUSE_ACCUMULATION_LIMIT = 最大累积帧数
-option.DIFFUSE_DENOISE_PASSES        = 降噪轮数
 option.SAMPLING_METHOD               = 采样方式
 
 value.SAMPLING_METHOD.0              = 均匀采样
@@ -59,14 +57,12 @@ value.SUNLIGHT_GI_QUALITY.0          = 低
 value.SUNLIGHT_GI_QUALITY.1          = 中
 value.SUNLIGHT_GI_QUALITY.2          = 高
 
-option.DIFFUSE_FILTER_QUALITY        = 降噪质量
 
 value.DIFFUSE_FILTER_QUALITY.0       = 低
 value.DIFFUSE_FILTER_QUALITY.1       = 高
 
 option.REFLECTION_SAMPLES               = 反射采样数
 option.REFLECTION_MAX_RT_DISTANCE       = 反射追踪距离
-option.PT_REFLECTION_ACCUMULATION_LIMIT = 最大累积帧数
 option.REFLECTION_ROUGHNESS_THRESHOLD   = 反射粗糙度阈值
 option.REFLECTION_BOUNCES               = 反射弹射次数
 option.REFLECTION_PER_PIXEL_SHADOWS     = 逐像素计算阴影
@@ -78,18 +74,12 @@ option.PT_SHADOW_ACCUMULATION_LIMIT = 最大累积帧数
 option.SHADOW_SOFTNESS              = 阴影柔和度
 option.SHADOW_SKIP_CLIPPING         = 跳过历史值裁剪
 
-option.DIFFUSE_HALF_RES    = 半分辨率追踪
-option.REFLECTION_HALF_RES = 半分辨率追踪
 option.SHADOW_HALF_RES     = 半分辨率追踪
 
-option.DENOISER_DEPTH_WEIGHT     = 降噪深度权重
-option.DENOISER_NORMAL_WEIGHT    = 降噪法线权重
-option.DENOISER_INTENSITY_WEIGHT = 降噪亮度权重
+option.DENOISER_DEPTH_WEIGHT = 阴影滤波深度权重
 
-option.TEMPORAL_PREFILTERING      = 时间预滤波
-option.TEMPORAL_NORMAL_TOLERANCE  = 放宽历史法线匹配
+option.TEMPORAL_NORMAL_TOLERANCE = 放宽阴影历史法线匹配
 
-option.DENOISER_VARIANCE_GUIDE    = 方差引导
 
 option.IRCACHE_VOXEL_ARRAY_SIZE = 体素数组容量
 option.IRCACHE_PROBE_ATTEMPTS   = 哈希探测次数
@@ -248,3 +238,15 @@ suffix.HAND_FOV               = °
 
 option.DEBUG_IRCACHE = 显示辐照度缓存
 option.DEBUG_VOXELIZATION = 显示体素化结果
+
+option.RELAX_DIFFUSE_HISTORY=漫反射历史上限
+option.RELAX_SPECULAR_HISTORY=反射历史上限
+option.RELAX_FAST_HISTORY=快速历史长度
+option.RELAX_ATROUS_PASSES=空间滤波次数
+option.RELAX_DIFFUSE_PREPASS=漫反射预滤波半径
+option.RELAX_SPECULAR_PREPASS=反射预滤波半径
+
+option.IRCACHE_LIGHT_GUIDING=缓存太阳光重要性采样
+option.IRCACHE_LIGHT_GUIDING.comment=将半球采样与带正确权重的 GGX 定向采样结合，减少镜面太阳光造成的偶发高亮样本，保留原有光路。每个活动缓存项最多增加三条几何射线及遮挡查询。
+option.TAA_MIRROR_HISTORY=纯镜面历史长度
+option.TAA_MIRROR_HISTORY.comment=静止平面镜面的历史上限。移动时降至常规 TAA 上限；新显露的表面受实际可用历史限制。

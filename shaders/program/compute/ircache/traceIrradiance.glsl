@@ -1,3 +1,4 @@
+#define IRCACHE_UPDATE_READ_HISTORY
 #include "/include/uniforms.glsl"
 #include "/include/config.glsl"
 #include "/include/constants.glsl"
@@ -12,6 +13,7 @@
 #include "/include/brdf.glsl"
 #include "/include/atmosphere.glsl"
 #include "/include/sampling.glsl"
+#include "/include/cacheLightSampling.glsl"
 
 layout (local_size_x = 64) in;
 
@@ -35,18 +37,12 @@ void main ()
 {   
     uint index = gl_GlobalInvocationID.x;
 
-    IrcacheVoxel voxel = ircache.entries[index];
+    IrcacheVoxel voxel = ircacheHistory.entries[index];
     uint state = gl_GlobalInvocationID.x + (frameCounter & 2047u) * IRCACHE_VOXEL_ARRAY_SIZE;
 
-    if (voxel.packedPos == 0u || voxel.traceOrigin == 0u || frameCounter - voxel.lastFrame > 10u || voxel.lastFrame > frameCounter) {
-        ircache.entries[index].traceOrigin = 0u;
-        ircache.entries[index].rank = 128u;
-        ircache.entries[index].lastFrame = 0u;
-        ircache.entries[index].packedPos = 0u;
-        ircache.entries[index].direct = 0u;
-        ircache.entries[index].radiance = IRCACHE_INV_MARKER;
-        return;
-    }
+    // Expiry was completed before the snapshot. Never clear a slot here: a
+    // different invocation may have requested that empty slot during this pass.
+    if (voxel.packedPos == 0u) return;
 
     ivec4 voxelPos = unpackCachePos(voxel.packedPos);
 
@@ -66,8 +62,23 @@ void main ()
         float mu = dot(normal, ray.direction);
 
         if (rt.hit) {
-            IrradianceSum query = irradianceCache(ray.origin + ray.direction * (rt.dist - 0.002), rt.normal, voxel.rank);
-            currRadiance.rgb += mu * (rt.albedo.rgb * (rt.emission + query.diffuseIrradiance) + lightTransmittance(shadowDir) * shadowLightBrightness * query.directIrradiance * evalCookBRDF(shadowDir, ray.direction, max(0.2, rt.roughness), rt.normal, rt.albedo.rgb, rt.F0));
+            vec3 hitPos=ray.origin+ray.direction*rt.dist;
+            #ifdef IRCACHE_LIGHT_GUIDING
+                IrradianceSum query=IrradianceSum(vec3(0.0),vec3(0.0));
+                // A zero diffuse lobe does not consume an irradiance-cache entry.
+                if(any(greaterThan(rt.albedo.rgb,vec3(0.0))))query=irradianceCache(ray.origin+ray.direction*(rt.dist-0.002),rt.normal,voxel.rank);
+                vec3 diffuseSun,specularSun;
+                evalCookBRDFLobes(shadowDir,ray.direction,max(0.2,rt.roughness),rt.normal,rt.albedo.rgb,rt.F0,diffuseSun,specularSun);
+                vec3 specularVisibility=vec3(0.0);
+                if(dot(rt.normal,shadowDir)>0.0&&shadowLightBrightness>0.0){
+                    specularVisibility=TraceShadowRay(Ray(hitPos+rt.normal*0.003,sampleSunDir(shadowDir,vec2(randomValue(state),randomValue(state)))),SHADOW_MAX_RT_DISTANCE,true).rgb;
+                }
+                float hemisphereWeight=cacheLightUniformWeight(ray.direction,rt.normal);
+                currRadiance.rgb+=mu*(rt.albedo.rgb*(rt.emission+query.diffuseIrradiance)+lightTransmittance(shadowDir)*shadowLightBrightness*(query.directIrradiance*diffuseSun+specularVisibility*specularSun*hemisphereWeight));
+            #else
+                IrradianceSum query=irradianceCache(ray.origin+ray.direction*(rt.dist-0.002),rt.normal,voxel.rank);
+                currRadiance.rgb+=mu*(rt.albedo.rgb*(rt.emission+query.diffuseIrradiance)+lightTransmittance(shadowDir)*shadowLightBrightness*query.directIrradiance*evalCookBRDF(shadowDir,ray.direction,max(0.2,rt.roughness),rt.normal,rt.albedo.rgb,rt.F0));
+            #endif
         } 
         #ifdef DIMENSION_OVERWORLD
             else {
@@ -77,6 +88,29 @@ void main ()
     }
     
     currRadiance.rgb *= rcp(IRCACHE_SAMPLES);
+
+    #ifdef IRCACHE_LIGHT_GUIDING
+        // Each proposal estimates only the direct-specular contribution of its
+        // actual axis-surface class. Other paths retain hemisphere sampling.
+        for(int axis=0;axis<3;axis++){
+            vec3 proposalNormal=cacheLightAxisNormal(axis);
+            if(dot(proposalNormal,shadowDir)<=0.0||shadowLightBrightness<=0.0)continue;
+            vec3 outgoing=sampleVNDFUnfolded(-shadowDir,proposalNormal,cacheLightProposalAlpha,vec2(randomValue(state),randomValue(state)));
+            vec3 direction=-outgoing;
+            float mu=dot(normal,direction);
+            if(mu<=0.0||dot(proposalNormal,outgoing)<=0.0)continue;
+            Ray guidedRay=Ray(playerPos,direction);
+            RayHitInfo rt=TraceGenericRay(guidedRay,IRCACHE_MAX_RT_DISTANCE,true,true);
+            if(!rt.hit||cacheLightSurfaceAxis(rt.normal)!=axis||dot(rt.normal,shadowDir)<=0.0)continue;
+            vec3 diffuseSun,specularSun;
+            evalCookBRDFLobes(shadowDir,direction,max(0.2,rt.roughness),rt.normal,rt.albedo.rgb,rt.F0,diffuseSun,specularSun);
+            vec3 hitPos=playerPos+direction*rt.dist;
+            vec3 visibility=TraceShadowRay(Ray(hitPos+rt.normal*0.003,sampleSunDir(shadowDir,vec2(randomValue(state),randomValue(state)))),SHADOW_MAX_RT_DISTANCE,true).rgb;
+            float proposalPdf=cacheLightProposalPdf(outgoing,proposalNormal);
+            float balance=cacheHemispherePdf/(float(IRCACHE_SAMPLES)*cacheHemispherePdf+proposalPdf);
+            currRadiance.rgb+=mu*lightTransmittance(shadowDir)*shadowLightBrightness*visibility*specularSun*balance;
+        }
+    #endif
 
     vec4 prevRadiance = unpackHalf4x16(voxel.radiance);
     vec3 prevShadow   = unpack3x10(voxel.direct);

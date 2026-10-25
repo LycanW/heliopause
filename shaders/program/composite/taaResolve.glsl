@@ -9,6 +9,7 @@
 #include "/include/spaceConversion.glsl"
 
 #include "/include/text.glsl"
+#include "/program/relax/resources.glsl"
 
 /* RENDERTARGETS: 6 */
 layout (location = 0) out vec4 history;
@@ -59,6 +60,17 @@ void main ()
             vec4 prevData = texture(colortex6, prevUv.xy);
         #endif
 
+        float historyLimit=rcp(TAA_BLEND_WEIGHT);
+        #if defined TAA_REFLECTION_DEPTH && !defined DISABLE_DENOISING
+            ivec2 nrPixelCoord=ivec2(srcTexel.x,int(internalScreenSize.y)-1-srcTexel.y);
+            if(nrFetch(1,0,nrPixelCoord,0).w>0.0&&nrFetch(100,0,nrPixelCoord,0).r<500000.0){
+                float historyAge=nrFetch(15,0,nrPixelCoord,0).r*255.0;
+                float motionPixels=length((prevUv.xy-uv)*screenSize);
+                float mirrorLimit=mix(max(historyLimit,float(TAA_MIRROR_HISTORY)),historyLimit,smoothstep(0.0,1.0,motionPixels));
+                historyLimit=historyAge<4.0?min(mirrorLimit,max(historyAge,1.0)):mirrorLimit;
+            }
+        #endif
+        prevData.w=min(prevData.w,historyLimit);
         vec3 colorMin = vec3(INFINITY);
         vec3 colorMax = vec3(-INFINITY);
 
@@ -94,7 +106,7 @@ void main ()
                 )
             ) - 0.0001;
 
-            history = vec4(currData.rgb, min(rcp(alpha) + (isUnderSample ? 0.0005 : 1.0), rcp(TAA_BLEND_WEIGHT)));
+            history = vec4(currData.rgb, min(rcp(alpha) + (isUnderSample ? 0.0005 : 1.0), historyLimit));
         } else history = vec4(currData.rgb, rcp(TAA_BLEND_WEIGHT));
     } else history = vec4(currData.rgb, 1.0);
 }

@@ -121,6 +121,19 @@
         IrcacheVoxel entries[];
     } ircache;
 
+    #if defined(IRCACHE_SNAPSHOT_WRITE) || defined(IRCACHE_UPDATE_READ_HISTORY)
+        layout (std430, binding = 6)
+        #ifdef IRCACHE_SNAPSHOT_WRITE
+            writeonly
+        #else
+            readonly
+        #endif
+        buffer irradiance_cache_history
+        {
+            IrcacheVoxel entries[];
+        } ircacheHistory;
+    #endif
+
     layout (std430, binding = 3) buffer voxel_buffer
     {
         Voxel voxels[];

@@ -2,4 +2,4 @@
 
 #define DIMENSION_OVERWORLD
 
-#include "/program/compute/ircache/traceIrradiance.glsl"
+#include "/program/compute/ircache/snapshot.glsl"
