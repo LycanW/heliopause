@@ -245,14 +245,25 @@ suffix.HAND_FOV               = °
 
 option.DEBUG_IRCACHE = View Irradiance Cache
 option.DEBUG_VOXELIZATION = View Voxelization
-option.RELAX_DIFFUSE_HISTORY=Diffuse history limit
-option.RELAX_SPECULAR_HISTORY=Reflection history limit
-option.RELAX_FAST_HISTORY=Fast history length
-option.RELAX_ATROUS_PASSES=Spatial filter passes
-option.RELAX_DIFFUSE_PREPASS=Diffuse prefilter radius
-option.RELAX_SPECULAR_PREPASS=Reflection prefilter radius
+option.SVGF_DIFFUSE_HISTORY=Diffuse history limit
+option.SVGF_SPECULAR_HISTORY=Reflection history limit
+option.SVGF_FAST_HISTORY=Response history length
+option.SVGF_FAST_HISTORY.comment=RGB integration window during a detected lighting change. Luminance detection also covers the full jitter cycle.
+option.SVGF_ATROUS_PASSES=Spatial filter passes
 
 option.IRCACHE_LIGHT_GUIDING=Cache sunlight importance sampling
 option.IRCACHE_LIGHT_GUIDING.comment=Combines hemisphere sampling with weighted GGX light proposals. Reduces rare bright samples from specular sunlight without removing light paths. Adds up to three geometry rays per active cache entry and visibility rays.
 option.TAA_MIRROR_HISTORY=Perfect mirror history
 option.TAA_MIRROR_HISTORY.comment=History limit for static planar perfect mirrors. Motion reduces it to the general TAA limit; newly exposed geometry limits it to the available history.
+
+option.SVGF_RESPONSE_THRESHOLD=Lighting response threshold
+option.SVGF_RESPONSE_THRESHOLD.comment=Lower values respond faster to lighting changes but may increase noise.
+
+option.SVGF_DIFFUSE_PREPASS=Diffuse prefilter radius
+option.SVGF_DIFFUSE_PREPASS.comment=Larger radii reduce noise but can soften lighting details.
+option.SVGF_SPECULAR_PREPASS=Reflection prefilter radius
+option.SVGF_SPECULAR_PREPASS.comment=Larger radii reduce noise but can soften lighting details.
+
+
+option.SVGF_MIRROR_HISTORY=Mirror receiver history limit
+option.SVGF_MIRROR_HISTORY.comment=Longer history for static virtual receivers; lighting changes still use responsive integration.

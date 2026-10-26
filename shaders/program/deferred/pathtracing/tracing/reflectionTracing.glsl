@@ -15,27 +15,29 @@
 #include "/include/atmosphere.glsl"
 #include "/include/spaceConversion.glsl"
 #include "/include/lighting.glsl"
-#include "/program/relax/resources.glsl"
-#include "/program/relax/guides.glsl"
+#include "/program/svgf/guides.glsl"
 
 layout(rgba16f) uniform image2D colorimg2;
 layout(r32f) uniform image2D colorimg13;
-layout(rgba16f) uniform writeonly image2D nrMirrorPayloadImage;
+layout(rgba16f) uniform writeonly image2D svgfMirrorImage;
+#ifndef DISABLE_DENOISING
+layout(rgba16f) uniform writeonly image2D colorimg10;
+#endif
 layout(local_size_x=8,local_size_y=8) in;
 
 void main() {
     ivec2 pixel=ivec2(gl_GlobalInvocationID.xy);
     if(any(greaterThanEqual(pixel,ivec2(internalScreenSize))))return;
-    ivec2 nrPixelCoord=ivec2(pixel.x,int(internalScreenSize.y)-1-pixel.y);
     ivec2 factorPixel=pixel+ivec2(int(internalScreenSize.x),0);
-    imageStore(nrMirrorPayloadImage,pixel,vec4(0.0));
-    imageStore(nrMirrorPayloadImage,factorPixel,vec4(1.0,1.0,1.0,0.0));
+    imageStore(svgfMirrorImage,pixel,vec4(0.0));
+    imageStore(svgfMirrorImage,factorPixel,vec4(1.0,1.0,1.0,0.0));
     uint state=gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*uint(internalScreenSize.x)+uint(internalScreenSize.x)*uint(internalScreenSize.y)*(frameCounter&1023u);
     float depth=texelFetch(depthtex1,pixel,0).r;
     imageStore(colorimg13,pixel,vec4(depth,0.0,0.0,1.0));
     if(depth==1.0) {
-        nrStore(100,nrPixelCoord,vec4(1000000.0,0.0,0.0,0.0));
-        nrStore(1,nrPixelCoord,vec4(0.5,0.5,1.0,0.0));
+        #ifndef DISABLE_DENOISING
+        svgfStoreGuide(pixel,0,vec3(0.0,1.0,0.0),vec3(0.0,1.0,0.0),0.0,0.0,0u);
+        #endif
         imageStore(colorimg2,pixel,vec4(0.0));
         return;
     }
@@ -43,21 +45,29 @@ void main() {
     vec2 uv=(vec2(pixel)+0.5)*internalTexelSize;
     vec3 primaryPosition=screenToPlayerPos(vec3(uv,depth)).xyz;
     float primaryViewZ=-(gbufferModelView*vec4(primaryPosition,1.0)).z;
-    nrStore(100,nrPixelCoord,vec4(primaryViewZ,0.0,0.0,0.0));
-    nrStore(1,nrPixelCoord,vec4(nrEncodeNormalRoughness(mat.textureNormal,sqrt(mat.roughness)),0.0));
+    #ifndef DISABLE_DENOISING
+    svgfStoreGuide(pixel,0,mat.geoNormal,mat.textureNormal,mat.roughness,primaryViewZ,
+        mat.roughness>REFLECTION_ROUGHNESS_THRESHOLD?0u:(mat.isHand?3u:1u));
+    #endif
     if(mat.roughness>REFLECTION_ROUGHNESS_THRESHOLD) {
         imageStore(colorimg2,pixel,vec4(0.0));
         return;
     }
-    // Delta events on a planar surface have a deterministic prefix. NRD sees
+    // Delta events on a planar surface have a deterministic prefix. Filtering sees
     // the first non-delta surface after this prefix (primary surface replacement).
     bool primaryDelta=mat.roughness==0.0&&!mat.isHand&&dot(mat.geoNormal,mat.textureNormal)>0.99999;
+    bool splitMirror=false;
+    #ifndef DISABLE_DENOISING
+    splitMirror=svgfOwnsVirtualDiffuse(mat.roughness,mat.albedo.rgb,mat.geoNormal,mat.textureNormal,mat.isHand);
+    if(splitMirror)imageStore(colorimg10,pixel,vec4(0.0));
+    #endif
+    vec3 virtualDiffuse=vec3(0.0),diffuseFactor=vec3(0.0);
     vec3 rayOrigin=primaryPosition;
     vec3 rayDir=normalize(primaryPosition-screenToPlayerPos(vec3(uv,0.0)).xyz);
     vec3 reflectedDir=reflect(rayDir,mat.textureNormal);
     if(mat.isHand)rayOrigin+=0.5*playerLookVector;
     vec3 radiance=vec3(0.0),baseRadiance=vec3(0.0),specularFactor=vec3(1.0);
-    float nrHitDistance=0.0,reflectionDepth=REFLECTION_MAX_RT_DISTANCE;
+    float reflectionDepth=REFLECTION_MAX_RT_DISTANCE;
     vec3 psrPosition=primaryPosition,psrNormal=mat.textureNormal;
     float psrRoughness=mat.roughness;
     bool hasPsr=false;
@@ -65,7 +75,6 @@ void main() {
         vec3 throughput=vec3(1.0);
         float roughnessAccum=mat.roughness,rayDist=0.0;
         bool prefix=primaryDelta;
-        int psrBounce=-1;
         vec3 sampleFactor=primaryDelta?vec3(0.0):vec3(1.0);
         mat3 virtualRotation=mat3(1.0)-2.0*outerProduct(mat.textureNormal,mat.textureNormal);
         vec3 virtualTranslation=primaryPosition-virtualRotation*primaryPosition;
@@ -85,7 +94,6 @@ void main() {
         }
         for(int j=0;j<REFLECTION_BOUNCES;j++) {
             RayHitInfo rt=TraceGenericRay(ray,REFLECTION_MAX_RT_DISTANCE,true,true);
-            if((!primaryDelta&&j==0)||(primaryDelta&&psrBounce>=0&&j==psrBounce+1))nrHitDistance+=rt.dist;
             if(luminance(throughput)>0.5&&roughnessAccum<0.2)rayDist+=rt.dist;
             if(rt.hit) {
                 throughput*=pdf;
@@ -99,28 +107,46 @@ void main() {
                         if(dot(rt.normal,shadowDir)>-0.0001)lighting.directIrradiance=TraceShadowRay(Ray(hitPos,sampleSunDir(shadowDir,rand)),SHADOW_MAX_RT_DISTANCE,true).rgb;
                     #endif
                 #endif
-                vec3 hitLighting=rt.albedo.rgb*(rt.emission+lighting.diffuseIrradiance);
+                vec3 emitted=rt.albedo.rgb*rt.emission;
+                vec3 receiverDiffuse=lighting.diffuseIrradiance,receiverSpecular=vec3(0.0);
                 if(dot(rt.normal,shadowDir)>-0.0001) {
-                    hitLighting+=lightTransmittance(shadowDir)*shadowLightBrightness*lighting.directIrradiance*evalCookBRDF(normalize(shadowDir+rt.normal*0.03125),ray.direction,max(0.2,rt.roughness),rt.normal,rt.albedo.rgb,rt.F0);
+                    vec3 d,s;
+                    evalCookBRDFLobes(normalize(shadowDir+rt.normal*0.03125),ray.direction,max(0.2,rt.roughness),rt.normal,vec3(1.0),rt.F0,d,s);
+                    vec3 sunlight=lightTransmittance(shadowDir)*shadowLightBrightness*lighting.directIrradiance;
+                    receiverDiffuse+=sunlight*d;receiverSpecular=sunlight*s;
                 }
+                vec3 hitLighting=rt.albedo.rgb*receiverDiffuse+receiverSpecular;
                 bool replaceSurface=prefix&&(rt.roughness>0.0||any(greaterThan(rt.albedo.rgb,vec3(0.0))));
+                vec3 fresnel=schlickFresnel(rt.F0,-dot(ray.direction,rt.normal));
                 if(replaceSurface){
-                    baseRadiance+=throughput*hitLighting;
-                }else if(prefix)baseRadiance+=throughput*hitLighting;
-                else radiance+=throughput*hitLighting;
+                    // The receiver is deterministic, but its cache/shadow
+                    // lighting estimate is stochastic. Only emission bypasses
+                    // reconstruction. Demodulate the complete receiver lighting
+                    // and continuation by its actual material response; the
+                    // positive offset stabilizes dark-channel normalization and
+                    // cancels exactly during unfiltered recomposition.
+                    baseRadiance+=throughput*emitted;
+                    if(splitMirror){
+                        virtualDiffuse+=receiverDiffuse;
+                        diffuseFactor=throughput*rt.albedo.rgb;
+                        radiance+=throughput*receiverSpecular;
+                        sampleFactor=throughput*max(fresnel,vec3(0.01));
+                    }else{
+                        radiance+=throughput*hitLighting;
+                        sampleFactor=throughput*max(max(rt.albedo.rgb,fresnel),vec3(0.01));
+                    }
+                }else if(prefix)baseRadiance+=throughput*(emitted+hitLighting);
+                else radiance+=throughput*(emitted+hitLighting);
                 if(replaceSurface) {
                     psrPosition=virtualRotation*hitPos+virtualTranslation;
                     psrNormal=virtualRotation*rt.normal;
                     psrRoughness=rt.roughness;
                     hasPsr=true;
-                    psrBounce=j;
                     prefix=false;
                 }
                 roughnessAccum=mix(roughnessAccum,1.0,rt.roughness);
                 if(roughnessAccum>REFLECTION_ROUGHNESS_THRESHOLD||luminance(throughput)<0.2)break;
-                vec3 fresnel=schlickFresnel(rt.F0,-dot(ray.direction,rt.normal));
                 throughput*=fresnel;
-                if(replaceSurface&&j+1<REFLECTION_BOUNCES)sampleFactor=throughput;
                 if(prefix) {
                     mat3 reflection=mat3(1.0)-2.0*outerProduct(rt.normal,rt.normal);
                     virtualTranslation+=virtualRotation*(hitPos-reflection*hitPos);
@@ -148,15 +174,24 @@ void main() {
         // The lobe factor belongs to the deterministic replacement surface,
         // outside the denoiser. A zero factor means this channel has no energy.
         radiance=vec3(specularFactor.x>0.0?radiance.x/specularFactor.x:0.0,specularFactor.y>0.0?radiance.y/specularFactor.y:0.0,specularFactor.z>0.0?radiance.z/specularFactor.z:0.0);
-        imageStore(nrMirrorPayloadImage,pixel,vec4(baseRadiance,0.0));
-        imageStore(nrMirrorPayloadImage,factorPixel,vec4(specularFactor,0.0));
-        float viewZ=hasPsr?-(gbufferModelView*vec4(psrPosition,1.0)).z:1000000.0;
-        nrStore(100,nrPixelCoord,vec4(viewZ,0.0,0.0,0.0));
-        nrStore(1,nrPixelCoord,vec4(nrEncodeNormalRoughness(psrNormal,sqrt(psrRoughness)),1.0/3.0));
+        imageStore(svgfMirrorImage,pixel,vec4(baseRadiance,0.0));
+        imageStore(svgfMirrorImage,factorPixel,vec4(specularFactor,0.0));
+        float viewZ=hasPsr?-(gbufferModelView*vec4(psrPosition,1.0)).z:0.0;
+        #ifndef DISABLE_DENOISING
+        uint receiverKind=hasPsr?(splitMirror?(any(greaterThan(diffuseFactor,vec3(0.0)))?2u:7u):5u):(splitMirror?6u:0u);
+        svgfStoreGuide(pixel,0,psrNormal,psrNormal,psrRoughness,viewZ,receiverKind);
+        if(splitMirror){
+            imageStore(colorimg10,pixel,vec4(diffuseFactor,0.0));
+            svgfWriteScratch(pixel,2,vec4(receiverKind==2u?virtualDiffuse*rcp(REFLECTION_SAMPLES):vec3(0.0),0.0));
+        }
+        #endif
         if(hasPsr)virtualDepth=playerToScreenPos(psrPosition).z;
     }
     imageStore(colorimg13,pixel,vec4(virtualDepth,0.0,0.0,1.0));
-    imageStore(colorimg2,pixel,vec4(radiance,nrHitDistance*rcp(REFLECTION_SAMPLES)));
+    // A primary pixel's subpixel material response is part of the canonical
+    // pixel integral. Integrate the complete contribution before accumulating.
+    if(!primaryDelta)radiance*=schlickFresnel(mat.F0,dot(mat.textureNormal,normalize(screenToPlayerPos(vec3(uv,0.0)).xyz-primaryPosition)));
+    imageStore(colorimg2,pixel,vec4(radiance,0.0));
 }
 
-#include "/program/relax/dispatch.glsl"
+#include "/program/svgf/dispatch.glsl"

@@ -1,14 +1,15 @@
 #ifndef INCLUDE_CONFIG
     #define INCLUDE_CONFIG
 
-    // NVIDIA ReLAX: full-resolution diffuse and specular signals.
-    #define RELAX_DIFFUSE_HISTORY 32 // [8 16 24 32 48 64 96 128]
-    #define RELAX_SPECULAR_HISTORY 32 // [8 16 24 32 48 64 96 128]
-    #define RELAX_FAST_HISTORY 6 // [2 3 4 6 8]
-    #define RELAX_ATROUS_PASSES 5 // [2 3 4 5]
-    #define RELAX_DIFFUSE_PREPASS 30 // [0 8 16 24 30 40]
-    #define RELAX_SPECULAR_PREPASS 50 // [0 8 16 24 32 50]
-
+    // Falcor SVGF foundation, with NRD-inspired responsive history.
+    #define SVGF_DIFFUSE_HISTORY 48 // [8 16 24 32 48 64 96 128]
+    #define SVGF_SPECULAR_HISTORY 128 // [8 16 24 32 48 64 96 128]
+    #define SVGF_MIRROR_HISTORY 96 // [16 32 64 96 128]
+    #define SVGF_FAST_HISTORY 6 // [2 3 4 6 8]
+    #define SVGF_ATROUS_PASSES 5 // [2 3 4 5]
+    #define SVGF_RESPONSE_THRESHOLD 0.20 // [0.05 0.10 0.15 0.20 0.25 0.30]
+    #define SVGF_DIFFUSE_PREPASS 24 // [0 8 16 24 30 40]
+    #define SVGF_SPECULAR_PREPASS 4 // [0 4 8 12 16 24 32 50]
 
     //#define DEBUG_VOXELIZATION
     //#define DEBUG_IRCACHE

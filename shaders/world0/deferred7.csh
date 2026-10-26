@@ -1,8 +1,6 @@
 #version 430 compatibility
-#include "/include/uniforms.glsl"
-#include "/include/config.glsl"
-#define NR_ATROUS_INDEX 1
-#define NR_LAST_PASS (RELAX_ATROUS_PASSES==2)
-#define NR_OUTPUT_COLOR2
-#include "/program/relax/official_diffuse_atrous.glsl"
-#include "/program/relax/dispatch.glsl"
+#define SVGF_ATROUS_INDEX 3
+#define SVGF_LAST_PASS (SVGF_ATROUS_PASSES==4)
+#include "/program/svgf/atrous.glsl"
+#include "/program/svgf/dispatch.glsl"
+layout(local_size_x=8,local_size_y=8) in;

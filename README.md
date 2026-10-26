@@ -12,16 +12,18 @@ and English and Simplified Chinese shader settings.
 
 ![Colored ceiling lights and reflections in a tiled corridor](assets/heliopause-colored-lighting.png)
 
-> **v0.3.0 release preparation:** the current ReLAX integration contains translated
-> NVIDIA shader source. Public release is on hold pending redistribution permission
-> or a replacement implementation. See [third-party provenance](THIRD_PARTY/NRD.md).
+> **v0.3.0:** the native Falcor-based SVGF replacement has completed
+> controlled validation on Intel Arc A770 for static opaque scenes, camera motion,
+> large lighting changes and representative lifecycle settings. Per-object motion
+> and other GPUs remain unqualified. See [known limitations](KNOWN_ISSUES.md) and
+> [implementation notes](DENOISING.md).
 
 ## Features
 
 - Path-traced diffuse lighting, multi-bounce reflections and sunlight shadows.
 - Geometry-aware ray intersections and a sparse irradiance cache for indirect light.
-- SVGF-family diffuse and specular denoising, labeled **SVGF (NRD-style)** in
-  settings. The current kernels are translated NVIDIA NRD ReLAX shaders.
+- Falcor-based SVGF diffuse and specular denoising with NRD-inspired history
+  and reflection handling, labeled **SVGF (NRD-style)** in settings.
 - Mirror virtual-surface reconstruction, separate mirror history control, and
   importance sampling for reflected sunlight in the irradiance cache.
 - LabPBR normal and specular maps, parallax occlusion mapping (POM), and integrated
@@ -30,17 +32,17 @@ and English and Simplified Chinese shader settings.
 - Temporal antialiasing and upscaling, bloom, exposure, depth of field and motion blur.
 - Four quality profiles and English / Simplified Chinese settings.
 
-See [Denoising integration notes](RELAX.md) for signal inputs, controls and memory costs.
+See [Denoising integration notes](DENOISING.md) for signal inputs, controls and memory costs.
 
 ## Compatibility and installation
 
-The current development and validation target is **Minecraft 26.3, Iris 1.11.7,
-and Intel Arc A770 on Windows**. Other GPU, driver and Minecraft combinations
-have not been qualified for this release. Iris must provide SSBO and custom-image
+The development target is **Minecraft 26.3, Iris 1.11.7,
+and Intel Arc A770 on Windows**. The replacement has been compiled and loaded on this target; other GPU,
+driver and Minecraft combinations have not been qualified either. Iris must provide SSBO and custom-image
 support. OptiFine and macOS are unsupported; Distant Horizons and Voxy integration
 are not implemented.
 
-When a release is available, place `Heliopause-v0.3.0.zip` in Minecraft's
+Download `Heliopause-v0.3.0.zip` from [Releases](https://github.com/LycanW/heliopause/releases/tag/v0.3.0), place it in Minecraft's
 `shaderpacks` directory and select it in Iris. A shaderpack ZIP must contain
 `shaders/` directly at its root. For a source checkout, use the directory containing
 this README and `shaders/` as the pack root.
@@ -64,7 +66,7 @@ are enabled in every profile; POM is enabled from Balanced upward.
 
 Diffuse and reflections run at full internal resolution. Profiles also adjust
 cache sampling, denoising, volumetrics and camera effects. Performance uses three
-ReLAX spatial passes; the other tiers use five. These tiers describe rendering
+SVGF spatial passes; the other tiers use five. These tiers describe rendering
 work, not guaranteed frame rates.
 
 Saved shader options override defaults. Select a profile explicitly or reset
@@ -84,7 +86,7 @@ They are not a comparison or validation capture of the release build.
 ## Current limitations
 
 This is an experimental shaderpack. Shadow-placement accuracy remains under
-investigation. ReLAX currently receives camera motion for static geometry;
+investigation. The denoiser currently reconstructs camera motion for static geometry;
 independent entity motion, animated geometry and moving reflected objects need
 further work. See [known issues](KNOWN_ISSUES.md) before reporting a problem.
 
@@ -96,8 +98,9 @@ pack, and a reproducible scene when opening an issue in
 
 - **LycanW** — Heliopause maintenance, compatibility fixes and subsequent changes.
 - **[Kirilpro6284](https://github.com/Kirilpro6284)** — original Zephyr Starlight.
-- **[NVIDIA](https://github.com/NVIDIA-RTX/NRD)** — NRD ReLAX and MathLib.
-  This software contains source code provided by NVIDIA Corporation.
+- **[NVIDIA Falcor](https://github.com/NVIDIAGameWorks/Falcor)** — SVGF foundation.
+- **[SVGF authors](https://research.nvidia.com/labs/rtr/publication/schied2017spatiotemporal/)**
+  and **[NRD](https://github.com/NVIDIA-RTX/NRD)** — published reconstruction methods and design guidance.
 - **[lucysir / kadir014](https://github.com/kadir014)** — blue-noise sampling.
 - **[jbritain](https://github.com/jbritain)** — upstream AMD support and blue-noise texture.
 - **[agentclone8](https://github.com/agentclone8)** — BRDF function.
@@ -105,8 +108,7 @@ pack, and a reproducible scene when opening an issue in
 - **[Player2950 / ArslanShakirov](https://github.com/ArslanShakirov)** — playtesting.
 
 The original shaderpack and Heliopause changes retain **[CC BY-NC-SA 4.0](LICENSE)**.
-NVIDIA-derived sources retain their separate **[NVIDIA RTX SDK license](THIRD_PARTY/NRD-LICENSE.txt)**;
-MathLib helpers retain their **[MIT license](THIRD_PARTY/MathLib-LICENSE.txt)**.
-These dependencies are not relicensed under CC BY-NC-SA. Their revisions,
-translation process and current redistribution restriction are recorded in
-[THIRD_PARTY/NRD.md](THIRD_PARTY/NRD.md).
+Falcor-derived SVGF sources retain their **[BSD-3-Clause license](THIRD_PARTY/Falcor-LICENSE.txt)**
+and copyright notices. See [source provenance](THIRD_PARTY/Falcor.md) for the fixed
+revision, adapted files and Heliopause extensions. The replacement contains no
+NRD SDK shader kernels.

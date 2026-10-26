@@ -1,4 +1,4 @@
-# Heliopause v0.3.0 (unreleased)
+# Heliopause v0.3.0
 
 First Heliopause version maintained by **LycanW**, continuing Zephyr Starlight
 v0.2.2 hotfix1 by **Kirilpro6284**.
@@ -10,23 +10,29 @@ v0.2.2 hotfix1 by **Kirilpro6284**.
   Balanced enables normal mapping and 32-step POM by default.
 - Correct numeric irradiance-cache smoothing, the 16384-entry cache setting and
   two-sample blue-noise resource selection.
-- Replace the former diffuse and specular SVGF filters with an Iris port of NVIDIA
-  NRD ReLAX. The settings label is **SVGF (NRD-style)**; this is a display name,
-  not a change in kernel provenance.
-- Correct compute synchronization, cache update ordering, ReLAX projection jitter
-  and discrete metadata handling.
-- Stabilize the reproduced static flat-mirror brightness pulses through
-  normal-aware cache identity, surface-consistent lighting reuse, reflected-sun
-  importance sampling, virtual-surface reconstruction and a separate mirror history.
+- Replace the translated NRD kernels and adapters with native Falcor-based SVGF.
+  Add responsive history and change-driven integration, separate geometry/shading
+  guides, short-history reconstruction and reflection-aware filtering. Keep the
+  existing cache, sampling and mirror-prefix fixes.
+- Use a 140 B/internal-pixel logical allocation, including FP32 moments and mirror
+  payload, instead of the preceding 188 B layout. Actual image formats and sizes
+  were checked in the representative Iris lifecycle cases.
+- Preserve shading-normal detail during canonical diffuse reconstruction and avoid
+  false stationary-view angles in history attenuation.
+- Keep independent luminance response detection and explicitly round reduced-float
+  histories on the tested Intel path. Merge redundant result-copy dispatches and
+  correct the disabled-denoiser R11 image-copy declaration.
+- Wire the native stages, profiles and settings in all three dimensions.
 - Refresh the README, gallery, credits and current known issues.
 - Remove obsolete COMPATIBILITY.txt patch notes.
 
-The static-mirror repair was validated in a controlled Arc A770 scene, including
-camera motion, lighting changes and fractional render scaling. This does not
-close the separate shadow-placement issue or qualify dynamic reflected objects.
+The native denoiser has completed controlled static opaque, camera-motion,
+lighting-response and complete-cost validation on Arc A770. Validation records and
+remaining coverage limits are kept separately from the runtime shaderpack.
+Direct-shadow placement and missing per-object motion remain separate issues.
 
-Publication is pending resolution of translated NRD shader source redistribution;
-see [third-party provenance](THIRD_PARTY/NRD.md). No v0.3.0 release is published.
+See [denoising notes](DENOISING.md), [known limitations](KNOWN_ISSUES.md), and
+[code provenance](THIRD_PARTY/Falcor.md).
 
 ---
 

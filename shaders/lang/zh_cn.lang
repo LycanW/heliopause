@@ -240,14 +240,24 @@ suffix.HAND_FOV               = °
 option.DEBUG_IRCACHE = 显示辐照度缓存
 option.DEBUG_VOXELIZATION = 显示体素化结果
 
-option.RELAX_DIFFUSE_HISTORY=漫反射历史上限
-option.RELAX_SPECULAR_HISTORY=反射历史上限
-option.RELAX_FAST_HISTORY=快速历史长度
-option.RELAX_ATROUS_PASSES=空间滤波次数
-option.RELAX_DIFFUSE_PREPASS=漫反射预滤波半径
-option.RELAX_SPECULAR_PREPASS=反射预滤波半径
+option.SVGF_DIFFUSE_HISTORY=漫反射历史上限
+option.SVGF_SPECULAR_HISTORY=反射历史上限
+option.SVGF_FAST_HISTORY=响应历史长度
+option.SVGF_FAST_HISTORY.comment=检测到光照变化时采用的 RGB 历史窗口；亮度检测另覆盖完整抖动周期。
+option.SVGF_ATROUS_PASSES=空间滤波次数
 
 option.IRCACHE_LIGHT_GUIDING=缓存太阳光重要性采样
 option.IRCACHE_LIGHT_GUIDING.comment=将半球采样与带正确权重的 GGX 定向采样结合，减少镜面太阳光造成的偶发高亮样本，保留原有光路。每个活动缓存项最多增加三条几何射线及遮挡查询。
 option.TAA_MIRROR_HISTORY=纯镜面历史长度
 option.TAA_MIRROR_HISTORY.comment=静止平面镜面的历史上限。移动时降至常规 TAA 上限；新显露的表面受实际可用历史限制。
+
+option.SVGF_RESPONSE_THRESHOLD=变光响应阈值
+option.SVGF_RESPONSE_THRESHOLD.comment=较低数值可更快跟随明暗变化，但可能增加波动。
+
+option.SVGF_DIFFUSE_PREPASS=漫反射预滤波半径
+option.SVGF_DIFFUSE_PREPASS.comment=增大范围可减轻噪点和波动，但可能损失照明细节。
+option.SVGF_SPECULAR_PREPASS=反射预滤波半径
+option.SVGF_SPECULAR_PREPASS.comment=增大范围可减轻噪点和波动，但可能损失照明细节。
+
+option.SVGF_MIRROR_HISTORY=镜面接收面历史上限
+option.SVGF_MIRROR_HISTORY.comment=静态虚拟接收面使用较长历史，光照变化仍通过快速响应处理。

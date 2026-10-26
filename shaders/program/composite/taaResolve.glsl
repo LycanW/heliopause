@@ -9,7 +9,7 @@
 #include "/include/spaceConversion.glsl"
 
 #include "/include/text.glsl"
-#include "/program/relax/resources.glsl"
+#include "/program/svgf/guides.glsl"
 
 /* RENDERTARGETS: 6 */
 layout (location = 0) out vec4 history;
@@ -19,7 +19,8 @@ void main ()
     ivec2 texel = ivec2(gl_FragCoord.xy);
 
     #if TAA_UPSCALING_FACTOR < 100 
-        ivec2 srcTexel = ivec2(TAAU_RENDER_SCALE * gl_FragCoord.xy);
+        ivec2 srcTexel = clamp(ivec2(TAAU_RENDER_SCALE * gl_FragCoord.xy),
+                              ivec2(0), ivec2(internalScreenSize) - 1);
         ivec2 dstTexel = ivec2((vec2(srcTexel) - internalScreenSize * taaOffset * 0.5 + 0.5) / TAAU_RENDER_SCALE);
     #else
         ivec2 srcTexel = texel;
@@ -62,9 +63,9 @@ void main ()
 
         float historyLimit=rcp(TAA_BLEND_WEIGHT);
         #if defined TAA_REFLECTION_DEPTH && !defined DISABLE_DENOISING
-            ivec2 nrPixelCoord=ivec2(srcTexel.x,int(internalScreenSize.y)-1-srcTexel.y);
-            if(nrFetch(1,0,nrPixelCoord,0).w>0.0&&nrFetch(100,0,nrPixelCoord,0).r<500000.0){
-                float historyAge=nrFetch(15,0,nrPixelCoord,0).r*255.0;
+            SvgfGuide mirrorGuide=svgfReadGuide(srcTexel,0);
+            if(mirrorGuide.kind==2u || mirrorGuide.kind==5u || mirrorGuide.kind==7u){
+                float historyAge=svgfReadHistory(srcTexel,2).a;
                 float motionPixels=length((prevUv.xy-uv)*screenSize);
                 float mirrorLimit=mix(max(historyLimit,float(TAA_MIRROR_HISTORY)),historyLimit,smoothstep(0.0,1.0,motionPixels));
                 historyLimit=historyAge<4.0?min(mirrorLimit,max(historyAge,1.0)):mirrorLimit;

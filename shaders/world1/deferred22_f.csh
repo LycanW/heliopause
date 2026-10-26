@@ -1,0 +1,7 @@
+#version 430 compatibility
+#define SVGF_SPECULAR
+#define SVGF_ATROUS_INDEX 3
+#define SVGF_LAST_PASS (SVGF_ATROUS_PASSES==4)
+#include "/program/svgf/atrous.glsl"
+#include "/program/svgf/dispatch.glsl"
+layout(local_size_x=8,local_size_y=8) in;

@@ -37,6 +37,7 @@ layout (local_size_x = 8, local_size_y = 8) in;
 void main ()
 {
         ivec2 offsetCoord = ivec2(gl_GlobalInvocationID.xy);
+        if (any(greaterThanEqual(offsetCoord, ivec2(internalScreenSize)))) return;
         uint state = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * uint(internalScreenSize.x) + uint(internalScreenSize.x) * uint(internalScreenSize.y) * (frameCounter & 1023u);
 
     float depth = texelFetch(depthtex1, offsetCoord, 0).x;
